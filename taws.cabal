@@ -82,6 +82,9 @@ library
                  , containers
                  , vector
                  , time
+                 , random
+                 , process
+                 --, cassava
 
 executable         taws
     if flag(library-only)
