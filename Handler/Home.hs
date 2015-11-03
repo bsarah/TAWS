@@ -11,6 +11,8 @@ import System.Random
 import System.Directory
 import System.IO (writeFile)
 import Data.Maybe
+import qualified Data.ByteString as B
+
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -21,7 +23,8 @@ import Data.Maybe
 -- inclined, or create a single monolithic file.
 getHomeR :: Handler Html
 getHomeR = do
-     (formWidget, formEnctype) <- generateFormPost sampleForm
+     (formWidget, formEnctype) <- generateFormPost inputForm
+     (sampleWidget, sampleEnctype) <- generateFormPost sampleForm
      defaultLayout $ do
         aDomId <- newIdent
         setTitle "Welcome To Yesod!"
@@ -29,7 +32,8 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = do
-    ((result, formWidget), formEnctype) <- runFormPost sampleForm
+    ((result, formWidget), formEnctype) <- runFormPost inputForm
+    ((sampleresult,sampleWidget),sampleEnctype) <- runFormPost sampleForm
     let handlerName = "postHomeR" :: Text
     let checkedSub = checkSubmission result
     if (isJust (checkedSub))
@@ -50,16 +54,26 @@ postHomeR = do
               $(widgetFile "homepage")
             
       else do 
-        defaultLayout $ do
-          aDomId <- newIdent
-          setTitle "Welcome To Yesod!"
-          $(widgetFile "homepage")
+        getHomeR  
+
 
 --custom the input form
-sampleForm :: Form (Maybe FileInfo, Maybe Text)
-sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
+inputForm :: Form (Maybe FileInfo, Maybe Text)
+inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
     <$> fileAFormOpt "Upload a fasta file"
     <*> aopt textField (withSmallInput "or paste sequences in fasta format:") Nothing
+
+
+sampleForm :: Form Text
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just"filename.xml"))
+--    <*> areq hiddenField (withSmallInput "") (Just "")
+
+--sampleForm :: Form (Text,Text)
+--sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
+--    <$> areq hiddenField (withSmallInput "") (Just"filename.xml")
+--    <*> areq hiddenField (withSmallInput "") (Just "")
+
+
 
 
 -- Auxiliary functions:
@@ -72,6 +86,15 @@ createSessionId = do
   randomNumber <- randomIO :: IO Int16
   let sessionId = randomid (abs randomNumber)
   return sessionId
+
+
+writesubmissionData :: [Char] -> Maybe (FileInfo, b) -> Maybe (B.ByteString, b1) -> IO()
+writesubmissionData temporaryDirectoryPath inputsubmission samplesubmission = do
+  if isJust inputsubmission
+     then do
+       liftIO (fileMove (fst (fromJust inputsubmission)) (temporaryDirectoryPath ++ "input.fa"))
+     else do
+       liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") ((fst (fromJust samplesubmission))))
 
 
 --check fasta format
