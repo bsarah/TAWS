@@ -7,6 +7,17 @@ port:           "_env:PORT:3000"
 approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
 
+Testing:
+  host: "*4" # any IPv4 host
+  port: 3000
+  approot: "http://kronos.tbi.univie.ac.at:3000"
+  revprox: "http://kronos.tbi.univie.ac.at:3000"
+  tempdir: "/scr/kronos/sberkemer/temp/"
+  gequeuename: "c_highmem.q"
+  ip-from-header: "_env:IP_FROM_HEADER:false"
+  static-dir:     "_env:STATIC_DIR:static"
+  copyright: unknown - 2015
+
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
 #

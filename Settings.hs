@@ -47,6 +47,10 @@ data AppSettings = AppSettings
     , appSkipCombining          :: Bool
     -- ^ Perform no stylesheet/script combining
 
+    --userdefined
+    , appTempDir               :: Text
+    -- ^ temporary directory for grid engine files
+
     -- Example app-specific configuration values.
     , appCopyright              :: Text
     -- ^ Copyright text to appear in the footer of the page
