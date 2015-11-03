@@ -1,15 +1,15 @@
-document.getElementById(#{toJSON aDomId}).innerHTML = "This text was added by the Javascript part of the homepage widget.";
-$(document).ready(function(){
-        //Dis-/Reen-able unused form field
-        //File upload field
-        uploadField = document.getElementById("hident2");
-        uploadField.addEventListener("change", disablefield(uploadField));
-        //Form upload field
-        sequenceTextField = document.getElementById("hident3");
-        sequenceTextField.addEventListener("change", disablefield(sequenceTextField));
-     
-}
+//document.addEventListener("DOMContentLoaded", function(event) { 
+//      //Dis-/Reen-able unused form field
+//      //File upload field
+//      uploadField = document.getElementById("hident2");
+//      uploadField.addEventListener("onchange", disablefield(uploadField));
+//      //Form upload field
+//      sequenceTextField = document.getElementById("hident3");
+//      sequenceTextField.addEventListener("onchange", disablefield(sequenceTextField));
+//});
 
-disablefield(ref){
-        ref.disabled=true;
-}
+//function disablefield(ref){
+//        if(ref.value!==""){
+//                ref.disabled=true;
+//        }
+//}
