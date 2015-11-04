@@ -50,13 +50,13 @@ postHomeR = do
             --Create tempdir and session-Id
             sessionId <- liftIO createSessionId  --session ID
             -- include revprox
-            let outputPath = "/scr/kronos/sberkemer/"  --- change paths later
+            let outputPath = "/scr/kronos/sberkemer/tmp/"  --- TODO change paths later
             let geQueueName = "c_highmem.q"
             let temporaryDirectoryPath = (outputPath) ++ sessionId ++ "/"  
             let tawsLogPath = temporaryDirectoryPath ++ "Log"
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
-            let bigcachePath = "/scr/kronos/sberkemer/U50_vs_SP.xml"
-            let programPath = ""
+            let bigcachePath = "/scratch/sberkemer/U50_vs_SP.xml"
+            let programPath = "/scr/kronos/sberkemer/"
             liftIO (createDirectory temporaryDirectoryPath)
             if(isJust inputsubmission) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)   --Write input fasta file
                                        else do return () -- write current pathname
@@ -66,9 +66,10 @@ postHomeR = do
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
-            let tacommand = programPath ++ "transalign -v "++ DT.unpack (fromJust samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
+            let tacommand = programPath ++ "transalign "++ DT.unpack (fromJust samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
+	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
             let geErrorDir = temporaryDirectoryPath ++ "gelog"
@@ -76,10 +77,11 @@ postHomeR = do
             let bashscriptpath = temporaryDirectoryPath ++ "qsub.sh"
             let bashheader = "#!/bin/bash\n"
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=/scr/kronos/sberkemer/"
-            let bashmemrequest = "#$ -l mem_free=4G\n"
+            let bashmemrequest = "#$ -l mem_free=40G\n"
+	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":$PATH\n"
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ parallelenv ++ bashPath ++ tacommand ++ archivecommand ++ donecommand
+            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ begincommand ++tacommand ++ archivecommand ++ donecommand
             let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (DT.unpack geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile tawsLogPath "")
@@ -105,12 +107,12 @@ inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
 
 
 sampleForm :: Form Text
-sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just"filename.xml"))
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/data/452.xml")) --TODO: change later!!!
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 --sampleForm :: Form (Text,Text)
 --sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
---    <$> areq hiddenField (withSmallInput "") (Just"filename.xml")
+--    <$> areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/data/452.xml")
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 

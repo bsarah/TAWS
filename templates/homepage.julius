@@ -1,3 +1,4 @@
+document.getElementById(#{toJSON aDomId}).innerHTML = "";
 //document.addEventListener("DOMContentLoaded", function(event) { 
 //      //Dis-/Reen-able unused form field
 //      //File upload field
