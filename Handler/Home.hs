@@ -58,15 +58,17 @@ postHomeR = do
             let bigcachePath = "/scratch/sberkemer/U50_vs_SP.xml"
             let programPath = "/scr/kronos/sberkemer/"
             liftIO (createDirectory temporaryDirectoryPath)
-            if(isJust inputsubmission) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)   --Write input fasta file
+            if(isJust inputsubmission && checkInput (fromJust inputsubmission)) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)   --Write input fasta file
                                        else do return () -- write current pathname
   
             --run blast to create xml
+	    
   
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
             let tacommand = programPath ++ "transalign "++ DT.unpack (fromJust samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
+--            let tacommand = programPath ++ "transalign "++ DT.unpack (fromMaybe "irgendwas" samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
 	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
@@ -80,7 +82,7 @@ postHomeR = do
             let bashmemrequest = "#$ -l mem_free=40G\n"
 	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
-            let bashPath = "#$ -v PATH=" ++ programPath ++ ":$PATH\n"
+            let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
             let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ begincommand ++tacommand ++ archivecommand ++ donecommand
             let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (DT.unpack geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
@@ -132,10 +134,12 @@ createSessionId = do
 
 writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Text) -> IO()
 writesubmissionData temporaryDirectoryPath inputsubmission = do
-   let (filepath,pastestring) = fromJust inputsubmission
-   if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
-                       else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 (fromJust  pastestring)))
-       
+   if(isJust inputsubmission)
+     then do 
+       let (filepath,pastestring) = fromJust inputsubmission
+       if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
+                           else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 (fromJust  pastestring)))
+     else return ()
 
 --check fasta format
 checkSubmission :: FormResult (Maybe FileInfo,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text) 

@@ -22,6 +22,7 @@ library
                      Settings.StaticFiles
                      Handler.Common
                      Handler.Home
+                     Handler.Result
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT
@@ -84,7 +85,8 @@ library
                  , time
                  , random
                  , process
-                 --, cassava
+                 , cassava
+                 , either-unwrap
 
 executable         taws
     if flag(library-only)
