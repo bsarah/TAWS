@@ -7,7 +7,7 @@ port:           "_env:PORT:3000"
 approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
 
-Testing:
+default:
   host: "*4" # any IPv4 host
   port: 3000
   approot: "http://kronos.tbi.univie.ac.at:3000"
