@@ -38,7 +38,7 @@ postHomeR :: Handler Html
 postHomeR = do
     ((result, _), _) <- runFormPost inputForm
     ((sampleresult,_),_) <- runFormPost sampleForm
-    app <- getYesod
+    app <- getYesod -- contains all the generally set path variables
     let handlerName = "postHomeR" :: Text
     let inputsubmission = case result of
             FormSuccess (fasta,taxid) -> Just (fasta,taxid)
@@ -51,34 +51,39 @@ postHomeR = do
             --Create tempdir and session-Id
             sessionId <- liftIO createSessionId  --session ID
             -- include revprox
-            let outputPath = "/scr/kronos/sberkemer/tmp/"  --- TODO change paths later
-            let geQueueName = "c_highmem.q"
-            let temporaryDirectoryPath = (outputPath) ++ sessionId ++ "/"  
-            let tawsLogPath = temporaryDirectoryPath ++ "Log"
+--            let outputPath = "/scr/kronos/sberkemer/tmp/"  
+	    let outputPath = DT.unpack $ appTempDir $ appSettings app
+--            let geQueueName = "c_highmem.q"
+            let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
+            let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"  
+--            let tawsLogPath = temporaryDirectoryPath ++ "Log" --not needed
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
-            let bigcachePath = "/scratch/sberkemer/U50_vs_SP.xml"
-            let programPath = "/scr/kronos/sberkemer/"
+	    let dataPath = DT.unpack $ appDataDir $ appSettings app
+            let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache 
+            let programPath = DT.unpack $ appProgramDir $ appSettings app
             liftIO (createDirectory temporaryDirectoryPath)
             let inpType = whichWay inputsubmission
             if(inpType == 1 || inpType == 2) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)
                                              else do return ()
             --run blast to create xml
             let blastpath = programPath ++ "blast/bin/"
-	    let unirefpath = "/scr/kronos/sberkemer/uniref50.fasta"
+	    let unirefpath = dataPath ++ "/uniref50.fasta"
 	    let smallcachePath = temporaryDirectoryPath ++ "Inp_vs_U50.xml"
-            let inputPath = if (inpType == 3) then DT.unpack (fromJust samplesubmission)
+	    let taerrorPath = temporaryDirectoryPath ++ "errorMsg.txt"
+            let inputPath = if (inpType == 3) then (dataPath ++ (DT.unpack (fromJust samplesubmission)))
 	                                      else temporaryDirectoryPath ++ "input.fa"
 	    let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 8 -outfmt 5 -out " ++ smallcachePath ++ "\n"
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
-            let tacommand = programPath ++ "transalign "++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
+            let tacommand = programPath ++ "transalign "++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
 	    let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
 	    let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
 	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
-	    let delcommand = "rm " ++ smallcachePath ++ "\n"
+	    let delcommand = "rm -r" ++ smallcachePath ++ ".d \n"
+	    let delcommanderr = "rm " ++ taerrorPath ++ "\n"
 	    let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
@@ -91,17 +96,16 @@ postHomeR = do
 	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ archivecommand ++ donecommand
-            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (DT.unpack geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
+            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
+            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
-            liftIO (SI.writeFile tawsLogPath "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
             _ <- liftIO (runCommand (qsubcommand))
             --Render page            
             defaultLayout $ do
                 aDomId <- newIdent
                 -- TODO if revprox set uncommand here!!!!
-                let approotjs = DT.pack "http://kronos.tbi.univie.ac.at:3000"
+                let approotjs = appRoot $ appSettings app
                 let sessionIdInsert =  DT.pack sessionId
                 let sessionIdjs = sessionId                       
                 $(widgetFile "calc")
@@ -117,7 +121,7 @@ inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
 
 
 sampleForm :: Form Text
-sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/1E79_bovine.fasta")) --TODO: change later!!!
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "452.fa"))
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 --sampleForm :: Form (Text,Text)
