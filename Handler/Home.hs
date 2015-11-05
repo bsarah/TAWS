@@ -130,7 +130,7 @@ sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInp
 -- Auxiliary functions:
 -- | Adds cm prefix to pseudo random number
 randomid :: Int16 -> String
-randomid number = "cm" ++ (show number)
+randomid number = "taws" ++ (show number)
 
 createSessionId :: IO String                  
 createSessionId = do
