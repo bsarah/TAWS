@@ -7,7 +7,7 @@ port:           "_env:PORT:4000"
 approot:        "_env:APPROOT:http://localhost:4000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
 revprox:        "_env:REVPROX:http://kronos.tbi.univie.ac.at:4000"
-tempdir:        "_env:TEMP_DIR:/scr/kronos/sberkemer/temp/"
+tempdir:        "_env:TEMP_DIR:/scr/kronos/sberkemer/tmp/"
 gequeuename:    "_env:GEQUEUENAME:c_highmem.q"
 copyright:      "_env:COPYRIGHT:SB-2015"
 

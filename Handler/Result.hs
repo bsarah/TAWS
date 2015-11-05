@@ -18,12 +18,15 @@ import Data.Either.Unwrap
 getResultR :: Handler Html
 getResultR = do
     result <- getRequest
+    app <- getYesod
     let params = reqGetParams result
     let sessionIdjs = snd (DL.head params)
     let sessionId = DT.unpack sessionIdjs
-    let currentApproot = DT.pack "http://kronos.tbi.univie.ac.at:3000" --TODO change later
-    let outputPath = "/scr/kronos/sberkemer/tmp/"  --- TODO change paths later
-    let temporaryDirectoryPath = (outputPath) ++ sessionId ++ "/"
+    --let currentApproot = DT.pack "http://kronos.tbi.univie.ac.at:3000" --TODO change later
+    let currentApproot = appRoot $ appSettings app
+    --let outputPath = "/scr/kronos/sberkemer/tmp/"  --- TODO change paths later
+    let outputPath = DT.unpack $ appTempDir $ appSettings app
+    let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
     let tempDirectoryRootURL = "http://nibiru.tbi.univie.ac.at/taws_tmp/taws/"
     let tempDirectoryURL = tempDirectoryRootURL ++ sessionId ++ "/"
     let tempDirectoryURLjs = DT.pack ("../taws_tmp/taws/" ++ sessionId ++ "/")
