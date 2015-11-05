@@ -27,10 +27,13 @@ getResultR = do
     let tempDirectoryRootURL = "http://nibiru.tbi.univie.ac.at/taws_tmp/taws/"
     let tempDirectoryURL = tempDirectoryRootURL ++ sessionId ++ "/"
     let tempDirectoryURLjs = DT.pack ("../taws_tmp/taws/" ++ sessionId ++ "/")
+    blaststarted <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastbegin"))
+    blastdone <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastdone"))  
     started <- liftIO (doesFileExist (temporaryDirectoryPath ++ "begin"))
     done <- liftIO (doesFileExist (temporaryDirectoryPath ++ "done"))  
     let unfinished = not done
-    resultstring <-liftIO (retrieveResultCsv done sessionId temporaryDirectoryPath tempDirectoryURL currentApproot)
+    resultmsg <- liftIO $ buildResultMsg done started blastdone blaststarted
+    resultstring <-liftIO (retrieveResultCsv done temporaryDirectoryPath)
     if started
        then do
          if done
@@ -50,8 +53,8 @@ getResultR = do
                setTitle "TAWS - Results"
                $(widgetFile "result")
 
-retrieveResultCsv :: Bool -> String -> String -> String -> Text -> IO String
-retrieveResultCsv done sessionId temporaryDirectoryPath tempDirectoryURL approotURL = do
+retrieveResultCsv :: Bool -> String -> IO String
+retrieveResultCsv done temporaryDirectoryPath = do
   if done
      then do
        let myOptions = defaultDecodeOptions {
@@ -74,7 +77,8 @@ retrieveResultCsv done sessionId temporaryDirectoryPath tempDirectoryURL approot
        let resultstring = "<table>"++ tableHeader ++ insidetable ++ "</table>"
        return resultstring
      else do
-       return "Your job is still running."
+         return "Your job is still running."
+         
 
 
 
@@ -88,3 +92,11 @@ constructTableLineContent (a,b,c,d,e,f,g,h,i) = "<tr>"++"<th>"++ a ++ "</th>"
                                                  ++"<th>"++ g ++ "</th>"
                                                  ++"<th>"++ h ++ "</th>"
                                                  ++"<th>"++ i ++ "</th>"++" </tr>"
+
+buildResultMsg :: Bool -> Bool -> Bool -> Bool -> IO String
+buildResultMsg done started blastdone blaststarted = do
+    if done then return "Job completed!"
+            else if started then return "Blast run completed. Transalign is still running."
+	                    else if blastdone then return "Blast run completed."
+		                              else if blaststarted then return "Blast is still running."
+				                                   else do return "Your job is still running."

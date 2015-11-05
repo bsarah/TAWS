@@ -58,18 +58,23 @@ postHomeR = do
             let bigcachePath = "/scratch/sberkemer/U50_vs_SP.xml"
             let programPath = "/scr/kronos/sberkemer/"
             liftIO (createDirectory temporaryDirectoryPath)
-            if(isJust inputsubmission && checkInput (fromJust inputsubmission)) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)   --Write input fasta file
-                                       else do return () -- write current pathname
-  
+            let inpType = whichWay inputsubmission
+            if(inpType == 1 || inpType == 2) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)
+                                             else do return ()
             --run blast to create xml
-	    
-  
+            let blastpath = programPath + "blast/bin/"
+	    let unirefpath = "/scratch/sberkemer/uniref50.fasta"
+	    let smallcachePath = "/scratch/sberkemer/Inp_vs_U50.xml"
+            let inputPath = if (inpType == 3) then DT.unpack (fromJust samplesubmission)
+	                                      else temporaryDirectoryPath ++ "input.fa"
+	    let blastcommand = "blastx -i "++ inputPath ++" -d " ++ unirefpath ++ " -e1e-4 -a 8 -m 7 -o " ++ smallcachePath
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
-            let tacommand = programPath ++ "transalign "++ DT.unpack (fromJust samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
---            let tacommand = programPath ++ "transalign "++ DT.unpack (fromMaybe "irgendwas" samplesubmission) ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
+            let tacommand = programPath ++ "transalign "++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
+	    let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
+	    let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
 	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
             --sun grid engine settings
@@ -83,7 +88,7 @@ postHomeR = do
 	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ begincommand ++tacommand ++ archivecommand ++ donecommand
+            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ archivecommand ++ donecommand
             let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (DT.unpack geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile tawsLogPath "")
@@ -109,7 +114,7 @@ inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
 
 
 sampleForm :: Form Text
-sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/data/452.xml")) --TODO: change later!!!
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/1E79_bovine.fasta")) --TODO: change later!!!
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 --sampleForm :: Form (Text,Text)
@@ -147,8 +152,15 @@ checkSubmission (FormSuccess (a,b)) = Just (a,b)
 checkSubmission _ = Nothing
 
 --check fasta format
-checkInput :: (Maybe FileInfo,Maybe Text) -> Bool
+checkInput :: (Maybe FileInfo,Maybe Text) -> Int
 checkInput (res,something)
-  | isJust res = True
-  | isJust something = True
-  | otherwise = False
+  | isJust res = 1
+  | isJust something = 2
+  | otherwise = 3
+
+-- check if some input exists if not return 3 (=samplesubmission).
+-- if input exists: if fasta file: return 1, if pasted sequence return two
+whichWay :: Maybe (Maybe FileInfo,Maybe Text) -> Int
+whichWay inputsubmission
+   | isJust inputsubmission = checkInput $ fromJust inputsubmission
+   | otherwise = 3

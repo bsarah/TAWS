@@ -8,5 +8,6 @@
   <h2><span class="label label-default">Webservice:</span><br>
 <div class="spacer">
 <h2>Progress:
+<div class="alert alert-info" role="alert"> #{resultmsg} </div>
 <br>
   #{preEscapedToMarkup resultstring}
