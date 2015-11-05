@@ -6,3 +6,5 @@
 
 / HomeR GET POST
 /result ResultR GET
+/tool ToolR GET
+/help HelpR GET

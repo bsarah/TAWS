@@ -23,6 +23,9 @@ library
                      Handler.Common
                      Handler.Home
                      Handler.Result
+                     Handler.Tool
+                     Handler.Help
+
 
     if flag(dev) || flag(library-only)
         cpp-options:   -DDEVELOPMENT

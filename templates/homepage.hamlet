@@ -2,15 +2,21 @@
   <div class="alert alert-danger" role="alert">
     Please enable javascript.
 <div class="spacer">
-<div>
-  <hr />
+<div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:solid;border-width:1px;border-color:#eee;"> 
+    <font size="5">This is some text!</font> 
+    <br>
+    <br>
+    <hr />
     <form method=post action=@{HomeR}#form enctype=#{formEnctype}>
       ^{formWidget}
       <button .btn .btn-primary type="submit">
          Send it! <span class="glyphicon glyphicon-upload"></span>
 <br>
+<div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:solid;border-width:1px;border-color:#eee;"> 
+    <font size="5">This is some text!</font> 
+    <br>
+    <br>
     <form method=post action=@{HomeR}#form enctype=#{sampleEnctype}>
       ^{sampleWidget}
       <button .btn .btn-primary type="submit">
          Sample! <span class="glyphicon glyphicon-upload"></span>
-  <hr />

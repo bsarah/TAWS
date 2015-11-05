@@ -31,7 +31,7 @@ getHomeR = do
      (sampleWidget, sampleEnctype) <- generateFormPost sampleForm
      defaultLayout $ do
         aDomId <- newIdent
-        setTitle "Welcome To Yesod!"
+        setTitle "Welcome To TAWS!"
         $(widgetFile "homepage") --template
 
 postHomeR :: Handler Html
@@ -97,7 +97,7 @@ postHomeR = do
                 let sessionIdInsert =  DT.pack sessionId
                 let sessionIdjs = sessionId                       
                 $(widgetFile "calc")
-                setTitle "Welcome To Yesod!"
+                setTitle "Welcome To TAWS!"
         else do getHomeR  
 
 
