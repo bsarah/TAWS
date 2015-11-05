@@ -3,20 +3,13 @@
 
 static-dir:     "_env:STATIC_DIR:static"
 host:           "_env:HOST:*4" # any IPv4 host
-port:           "_env:PORT:3000"
-approot:        "_env:APPROOT:http://localhost:3000"
+port:           "_env:PORT:4000"
+approot:        "_env:APPROOT:http://localhost:4000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
-
-#default:
-#  host: "*4" # any IPv4 host
-#  port: 3000
-#  approot: "http://kronos.tbi.univie.ac.at:3000"
-#  revprox: "http://kronos.tbi.univie.ac.at:3000"
-#  tempdir: "/scr/kronos/sberkemer/temp/"
-#  gequeuename: "c_highmem.q"
-#  ip-from-header: "_env:IP_FROM_HEADER:false"
-#  static-dir:     "_env:STATIC_DIR:static"
-#  copyright: unknown - 2015
+revprox:        "_env:REVPROX:http://kronos.tbi.univie.ac.at:4000"
+tempdir:        "_env:TEMP_DIR:/scr/kronos/sberkemer/temp/"
+gequeuename:    "_env:GEQUEUENAME:c_highmem.q"
+copyright:      "_env:COPYRIGHT:SB-2015"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
@@ -32,5 +25,4 @@ database:
   database: "_env:SQLITE_DATABASE:taws.sqlite3"
   poolsize: "_env:SQLITE_POOLSIZE:10"
 
-copyright: Insert copyright statement here
 #analytics: UA-YOURCODE

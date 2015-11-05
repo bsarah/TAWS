@@ -48,13 +48,15 @@ data AppSettings = AppSettings
     -- ^ Perform no stylesheet/script combining
 
     --userdefined
+    , appRevProx               :: Text
+    -- ^ Reverse proxy for server
     , appTempDir               :: Text
     -- ^ temporary directory for grid engine files
-
-    -- Example app-specific configuration values.
-    , appCopyright              :: Text
+    , appGeQueueName           :: Text
+    -- ^ temporary directory for grid engine files
+    , appCopyright             :: Text
     -- ^ Copyright text to appear in the footer of the page
-    , appAnalytics              :: Maybe Text
+    , appAnalytics             :: Maybe Text
     -- ^ Google Analytics code
     }
 
@@ -73,6 +75,11 @@ instance FromJSON AppSettings where
         appPort                   <- o .: "port"
         appIpFromHeader           <- o .: "ip-from-header"
 
+        -- user-defined
+        appRevProx                <- o .: "revprox"
+        appTempDir                <- o .: "tempdir"
+        appGeQueueName            <- o .: "gequeuename"
+   
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
         appReloadTemplates        <- o .:? "reload-templates" .!= defaultDev
