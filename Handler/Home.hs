@@ -109,10 +109,10 @@ postHomeR = do
 
 
 --custom the input form
-inputForm :: Form (Maybe FileInfo, Maybe Text)
+inputForm :: Form (Maybe FileInfo, Maybe Textarea)
 inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
     <$> fileAFormOpt "Upload a fasta file"
-    <*> aopt textField (withSmallInput "or paste sequences in fasta format:") Nothing
+    <*> aopt textareaField (withSmallInput "or paste sequences in fasta format:") Nothing
 
 
 sampleForm :: Form Text
@@ -139,13 +139,13 @@ createSessionId = do
   return sessionId
 
 
-writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Text) -> IO()
+writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea) -> IO()
 writesubmissionData temporaryDirectoryPath inputsubmission = do
    if(isJust inputsubmission)
      then do 
        let (filepath,pastestring) = fromJust inputsubmission
        if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
-                           else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 (fromJust  pastestring)))
+                           else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 $ unTextarea (fromJust  pastestring)))
      else return ()
 
 --check fasta format
@@ -154,7 +154,7 @@ checkSubmission (FormSuccess (a,b)) = Just (a,b)
 checkSubmission _ = Nothing
 
 --check fasta format
-checkInput :: (Maybe FileInfo,Maybe Text) -> Int
+checkInput :: (Maybe FileInfo,Maybe Textarea) -> Int
 checkInput (res,something)
   | isJust res = 1
   | isJust something = 2
@@ -162,7 +162,7 @@ checkInput (res,something)
 
 -- check if some input exists if not return 3 (=samplesubmission).
 -- if input exists: if fasta file: return 1, if pasted sequence return two
-whichWay :: Maybe (Maybe FileInfo,Maybe Text) -> Int
+whichWay :: Maybe (Maybe FileInfo,Maybe Textarea) -> Int
 whichWay inputsubmission
    | isJust inputsubmission = checkInput $ fromJust inputsubmission
    | otherwise = 3

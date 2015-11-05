@@ -9,8 +9,9 @@
     <hr />
     <form method=post action=@{HomeR}#form enctype=#{formEnctype}>
       ^{formWidget}
-      <button .btn .btn-primary type="submit">
-         Send it! <span class="glyphicon glyphicon-upload"></span>
+      <button .btn .btn-primary type="submit" style="background-color:green;">
+         Send it! <span class="glyphicon glyphicon-upload" style="background-color:green;"></span>
+
 <br>
 <div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:solid;border-width:1px;border-color:#eee;"> 
     <font size="5">This is some text!</font> 
@@ -19,4 +20,4 @@
     <form method=post action=@{HomeR}#form enctype=#{sampleEnctype}>
       ^{sampleWidget}
       <button .btn .btn-primary type="submit">
-         Sample! <span class="glyphicon glyphicon-upload"></span>
+         Sample! <span class="glyphicon glyphicon-play-circle" ></span>
