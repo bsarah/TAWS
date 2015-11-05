@@ -38,6 +38,7 @@ postHomeR :: Handler Html
 postHomeR = do
     ((result, _), _) <- runFormPost inputForm
     ((sampleresult,_),_) <- runFormPost sampleForm
+    app <- getYesod
     let handlerName = "postHomeR" :: Text
     let inputsubmission = case result of
             FormSuccess (fasta,taxid) -> Just (fasta,taxid)

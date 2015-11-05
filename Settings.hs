@@ -54,6 +54,10 @@ data AppSettings = AppSettings
     -- ^ temporary directory for grid engine files
     , appGeQueueName           :: Text
     -- ^ temporary directory for grid engine files
+    , appDataDir               :: Text
+    -- ^ directory for data, e.g. bigcache
+    , appProgramDir           :: Text
+    -- ^ directory for executables, e.g. blast transalign
     , appCopyright             :: Text
     -- ^ Copyright text to appear in the footer of the page
     , appAnalytics             :: Maybe Text
@@ -79,6 +83,8 @@ instance FromJSON AppSettings where
         appRevProx                <- o .: "revprox"
         appTempDir                <- o .: "tempdir"
         appGeQueueName            <- o .: "gequeuename"
+	appDataDir                <- o .: "datadir"
+        appProgramDir             <- o .: "programdir"
    
         appDetailedRequestLogging <- o .:? "detailed-logging" .!= defaultDev
         appShouldLogAll           <- o .:? "should-log-all"   .!= defaultDev
