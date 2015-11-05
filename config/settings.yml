@@ -3,11 +3,13 @@
 
 static-dir:     "_env:STATIC_DIR:static"
 host:           "_env:HOST:*4" # any IPv4 host
-port:           "_env:PORT:4000"
-approot:        "_env:APPROOT:http://localhost:4000"
+port:           "_env:PORT:3000"
+approot:        "_env:APPROOT:http://localhost:3000"
 ip-from-header: "_env:IP_FROM_HEADER:false"
-revprox:        "_env:REVPROX:http://kronos.tbi.univie.ac.at:4000"
+revprox:        "_env:REVPROX:http://kronos.tbi.univie.ac.at:3000"
 tempdir:        "_env:TEMP_DIR:/scr/kronos/sberkemer/tmp/"
+datadir:        "_env:DATA_DIR:/scratch/sberkemer/"
+programdir:     "_env:PROGRAM_DIR:/scr/kronos/sberkemer/"
 gequeuename:    "_env:GEQUEUENAME:c_highmem.q"
 copyright:      "_env:COPYRIGHT:SB-2015"
 
