@@ -77,7 +77,7 @@ postHomeR = do
 	    let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
 	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
-	    let delcommand = "rm " ++ smallcachePath
+	    let delcommand = "rm " ++ smallcachePath ++ "\n"
 	    let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
@@ -116,7 +116,7 @@ inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
 
 
 sampleForm :: Form Text
-sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/452.fa")) --TODO: change later!!!
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/1E79_bovine.fasta")) --TODO: change later!!!
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 --sampleForm :: Form (Text,Text)
