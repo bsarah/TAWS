@@ -62,12 +62,12 @@ postHomeR = do
             if(inpType == 1 || inpType == 2) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)
                                              else do return ()
             --run blast to create xml
-            let blastpath = programPath + "blast/bin/"
-	    let unirefpath = "/scratch/sberkemer/uniref50.fasta"
-	    let smallcachePath = "/scratch/sberkemer/Inp_vs_U50.xml"
+            let blastpath = programPath ++ "blast/bin/"
+	    let unirefpath = "/scr/kronos/sberkemer/uniref50.fasta"
+	    let smallcachePath = temporaryDirectoryPath ++ "Inp_vs_U50.xml"
             let inputPath = if (inpType == 3) then DT.unpack (fromJust samplesubmission)
 	                                      else temporaryDirectoryPath ++ "input.fa"
-	    let blastcommand = "blastx -i "++ inputPath ++" -d " ++ unirefpath ++ " -e1e-4 -a 8 -m 7 -o " ++ smallcachePath
+	    let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 8 -outfmt 5 -out " ++ smallcachePath ++ "\n"
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
@@ -77,6 +77,8 @@ postHomeR = do
 	    let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
 	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
+	    let delcommand = "rm " ++ smallcachePath
+	    let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
             let geErrorDir = temporaryDirectoryPath ++ "gelog"
@@ -88,7 +90,7 @@ postHomeR = do
 	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ archivecommand ++ donecommand
+            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ archivecommand ++ donecommand
             let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (DT.unpack geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile tawsLogPath "")
@@ -114,7 +116,7 @@ inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
 
 
 sampleForm :: Form Text
-sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/1E79_bovine.fasta")) --TODO: change later!!!
+sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/452.fa")) --TODO: change later!!!
 --    <*> areq hiddenField (withSmallInput "") (Just "")
 
 --sampleForm :: Form (Text,Text)
