@@ -11,6 +11,7 @@
 - tool: versions of transalign, blast...
 - output zip: summary, versions ...
 - REST blast
+- tablesorter on result page
 
 *transalign
 - memory consumption?
