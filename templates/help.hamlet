@@ -1,3 +1,9 @@
  
 <div class="page-header">
-  <h2><span class="label label-default">Help:</span><br>
+  <h2><span class="label label-default">Help</span><br>
+
+<h2 id="toc"> Table of contents: </h2><br>
+          <div class="list-group">
+            <a href="#ws" class="list-group-item">Webservice</a>
+            <a href="#tool" class="list-group-item">Commandline Tool</a>
+            <a href="#benchmark" class="list-group-item">Benchmark</a>

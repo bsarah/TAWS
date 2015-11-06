@@ -38,7 +38,7 @@ getResultR = do
     resultmsg <- liftIO $ buildResultMsg done started blastdone blaststarted
     resultstring <-liftIO (retrieveResultCsv done temporaryDirectoryPath)
     archivePresent <- liftIO $ doesFileExist (temporaryDirectoryPath ++ "result.zip")
-    let archivelink = if archivePresent then ("<a href=\"" ++ tempDirectoryURL ++ "result.zip\">Zip Archive</a>")
+    let archivelink = if archivePresent then (tempDirectoryURL ++ "result.zip")
                                         else ""
     
     if started
@@ -104,6 +104,6 @@ buildResultMsg :: Bool -> Bool -> Bool -> Bool -> IO String
 buildResultMsg done started blastdone blaststarted = do
     if done then return "Job completed!"
             else if started then return "Blast run completed. Transalign is still running."
-	                    else if blastdone then return "Blast run completed."
-		                              else if blaststarted then return "Blast is still running."
-				                                   else do return "Your job is still running."
+                            else if blastdone then return "Blast run completed."
+                                              else if blaststarted then return "Blast is still running."
+                                                                   else do return "Your job is still running."

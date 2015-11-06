@@ -1,0 +1,21 @@
+*data
+- build bigcache
+- test bigcache
+- include bigcache
+
+*server
+- move to webserver
+- feedback christian & ketil
+- contact data
+- help pages
+- tool: versions of transalign, blast...
+- output zip: summary, versions ...
+- REST blast
+
+*transalign
+- memory consumption?
+
+*paper
+- find testers
+- find reviewers
+- write it down!

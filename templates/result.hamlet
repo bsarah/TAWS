@@ -6,11 +6,10 @@
     Please enable javascript.
 <div class="spacer">
 <div class="page-header">
-  <h2><span class="label label-default">Webservice:</span><br>
+  <h2><span class="label label-default">Results</span><br>
 <div class="spacer">
 <h2>Progress:
 <div class="alert alert-info" role="alert"> #{resultmsg}<br>
-  Download results here: #{archivelink}
-
+  Download results here: <a href="#{archivelink}">Zip Archive</a>
 <br>
   #{preEscapedToMarkup resultstring}
