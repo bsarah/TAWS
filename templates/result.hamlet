@@ -1,5 +1,6 @@
 <script src="http://code.jquery.com/jquery-1.10.2.min.js">
 <script src="http://d3js.org/d3.v3.min.js">
+<script src="http://nibiru.tbi.univie.ac.at/taws/ts/jquery.tablesorter.min.js">
 <span ##{aDomId} style="color:red;float:left;">
   <div class="alert alert-danger" role="alert">
     Please enable javascript.
@@ -9,7 +10,7 @@
 <div class="spacer">
 <h2>Progress:
 <div class="alert alert-info" role="alert"> #{resultmsg}<br>
-Download results here: #{archivelink}</div>
+  Download results here: #{archivelink}
 
 <br>
   #{preEscapedToMarkup resultstring}
