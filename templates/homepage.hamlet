@@ -1,21 +1,25 @@
 <span ##{aDomId} style="color:red;float:left;">
   <div class="alert alert-danger" role="alert">
     Please enable javascript.
+<div class="page-header">
+  <h2><span class="label label-default">Webservice</h2>
 <div class="spacer">
-<div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:solid;border-width:1px;border-color:#eee;"> 
-    <font size="5">This is some text!</font> 
+    <font size="4">
+      Transalign is a homology search tool that uses indirect (transitive) alignments to build pairwise alignments in a more sensitive way. To use this program you can either download the code (see tool page) or use our webservice.
+     <hr />
+     <font size="3">
+      To use the webservice just upload a fasta file containing your query sequences or paste your sequence of interest in the test area.
     <br>
     <br>
-    <hr />
     <form method=post action=@{HomeR}#form enctype=#{formEnctype}>
       ^{formWidget}
       <button .btn .btn-primary type="submit" style="background-color:green;">
          Send it! <span class="glyphicon glyphicon-upload" style="background-color:green;"></span>
 
-<br>
-<div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:solid;border-width:1px;border-color:#eee;"> 
-    <font size="5">This is some text!</font> 
     <br>
+    <hr />
+    <font size="3">
+     To run an example just use the sample button. This will submit gene 452 of the species <i>Gadus morhua</i> (Cod).  
     <br>
     <form method=post action=@{HomeR}#form enctype=#{sampleEnctype}>
       ^{sampleWidget}

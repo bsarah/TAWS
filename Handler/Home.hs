@@ -39,7 +39,7 @@ postHomeR = do
     ((result, _), _) <- runFormPost inputForm
     ((sampleresult,_),_) <- runFormPost sampleForm
     app <- getYesod -- contains all the generally set path variables
-    let handlerName = "postHomeR" :: Text
+    --let handlerName = "postHomeR" :: Text
     let inputsubmission = case result of
             FormSuccess (fasta,taxid) -> Just (fasta,taxid)
             _ -> Nothing
@@ -52,13 +52,13 @@ postHomeR = do
             sessionId <- liftIO createSessionId  --session ID
             -- include revprox
 --            let outputPath = "/scr/kronos/sberkemer/tmp/"  
-	    let outputPath = DT.unpack $ appTempDir $ appSettings app
+            let outputPath = DT.unpack $ appTempDir $ appSettings app
 --            let geQueueName = "c_highmem.q"
             let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
             let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"  
 --            let tawsLogPath = temporaryDirectoryPath ++ "Log" --not needed
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
-	    let dataPath = DT.unpack $ appDataDir $ appSettings app
+            let dataPath = DT.unpack $ appDataDir $ appSettings app
             let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache 
             let programPath = DT.unpack $ appProgramDir $ appSettings app
             liftIO (createDirectory temporaryDirectoryPath)
@@ -67,24 +67,24 @@ postHomeR = do
                                              else do return ()
             --run blast to create xml
             let blastpath = programPath ++ "blast/bin/"
-	    let unirefpath = dataPath ++ "/uniref50.fasta"
-	    let smallcachePath = temporaryDirectoryPath ++ "Inp_vs_U50.xml"
-	    let taerrorPath = temporaryDirectoryPath ++ "errorMsg.txt"
+            let unirefpath = dataPath ++ "/uniref50.fasta"
+            let smallcachePath = temporaryDirectoryPath ++ "Inp_vs_U50.xml"
+            let taerrorPath = temporaryDirectoryPath ++ "errorMsg.txt"
             let inputPath = if (inpType == 3) then (dataPath ++ (DT.unpack (fromJust samplesubmission)))
-	                                      else temporaryDirectoryPath ++ "input.fa"
-	    let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 8 -outfmt 5 -out " ++ smallcachePath ++ "\n"
+                                              else temporaryDirectoryPath ++ "input.fa"
+            let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 8 -outfmt 5 -out " ++ smallcachePath ++ "\n"
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
             let tacommand = programPath ++ "transalign "++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
-	    let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
-	    let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
+            let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
+            let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
-	    let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
-	    let delcommand = "rm -r" ++ smallcachePath ++ ".d \n"
-	    let delcommanderr = "rm " ++ taerrorPath ++ "\n"
-	    let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
+            let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
+            let delcommand = "rm -r" ++ smallcachePath ++ ".d \n"
+            let delcommanderr = "rm " ++ taerrorPath ++ "\n"
+            let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
             let geErrorDir = temporaryDirectoryPath ++ "gelog"
@@ -93,7 +93,7 @@ postHomeR = do
             let bashheader = "#!/bin/bash\n"
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=/scr/kronos/sberkemer/"
             let bashmemrequest = "#$ -l mem_free=40G\n"
-	    let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
+            let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
             let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
@@ -117,7 +117,7 @@ postHomeR = do
 inputForm :: Form (Maybe FileInfo, Maybe Textarea)
 inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
     <$> fileAFormOpt "Upload a fasta file"
-    <*> aopt textareaField (withSmallInput "or paste sequences in fasta format:") Nothing
+    <*> aopt textareaField (withSmallInput "or paste sequences in fasta format: \n") Nothing
 
 
 sampleForm :: Form Text
