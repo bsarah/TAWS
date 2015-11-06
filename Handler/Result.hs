@@ -71,7 +71,7 @@ retrieveResultCsv done temporaryDirectoryPath = do
        tawsCSV <- B.readFile tawsCSVPath
        let decodedCsvOutput = V.toList (fromRight (decodeWith myOptions HasHeader (tawsCSV) :: Either String (V.Vector (String,String,String,String,String,String,String,String,String))))
        let insidetable = concatMap constructTableLineContent decodedCsvOutput
-       let tableHeader = "<tr>"++"<th>"++ "Query" ++ "</th>"
+       let tableHeader = "<thead><tr>"++"<th>"++ "Query" ++ "</th>"
                                        ++"<th>"++ "Target" ++ "</th>"
                                        ++"<th>"++ "Score" ++ "</th>"
                                        ++"<th>"++ "Alignment length" ++ "</th>"
@@ -80,8 +80,8 @@ retrieveResultCsv done temporaryDirectoryPath = do
                                        ++"<th>"++ "Query end" ++ "</th>"
                                        ++"<th>"++ "Target start" ++ "</th>"
                                        ++"<th>"++ "Target end" ++ "</th>"
-                                       ++"</tr>"
-       let resultstring = "<table>"++ tableHeader ++ insidetable ++ "</table>"
+                                       ++"</tr></thead>"
+       let resultstring = "<table id=\"myTable\" class=\"tablesorter\">"++ tableHeader ++ "<tbody>" ++ insidetable ++ "</tbody>" ++ "</table>"
        return resultstring
      else do
          return "Your job is still running."
