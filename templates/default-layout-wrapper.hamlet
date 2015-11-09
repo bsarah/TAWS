@@ -25,19 +25,20 @@ $newline never
   <body>
     <div class="container">
       <header>
-      <div class="container">	
+      <div class="container">
             <header>
              <nav class="navbar navbar-default" style="height:210px;background-color:white;">
                <div class="container-fluid">
                 <div class="navbar-header">
                  <a class="navbar-brand" href="#" style="height:205px;width:305px;">
-                  <img src=@{StaticR images_tawslogo_small_png} style="float:center;height:175px;width:350px;" alt="TAWS">
-                <div class="btn-group btn-group-lg navbar-right" role="group" aria-label="..."> 
-                  <a href="http://localhost:3000" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:180px;font-size:20px;border-style:solid;"><img src=@{StaticR images_greentaw_png} style="float:center;height:40px;width:40px;">Webservice</button></a>
-                  <a href="http://localhost:3000/tool" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_bluetaw_png} style="float:center;height:50px;width:50px;">Tool</button></a>
+                  <img src=@{StaticR images_tawslogo_small_long2_png} style="float:center;height:175px;width:750px;" alt="TAWS">
+                   <br>
+                <div class="btn-group btn-group-lg navbar-right" role="group" aria-label="...">
+                  <a href="http://localhost:3000" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:180px;font-size:20px;border-style:solid;"><img src=@{StaticR images_greentaw_png} style="float:center;height:50px;width:50px;">Webservice</button></a>
+                      <a href="http://localhost:3000/tool" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_bluetaw_png} style="float:center;height:50px;width:50px;">Tool</button></a>
                   <a href="http://localhost:3000/help" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_yellowtaw_png} style="float:center;height:50px;width:50px;">Help</button></a>
-                <div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:none;border-width:1px;border-color:#eee;height:200px;"> 
- 
+                <div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:none;border-width:1px;border-color:#eee;height:200px;">
+
 
         ^{pageBody pc}
       <footer>

@@ -5,7 +5,7 @@ import Import
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Text as DT
 import qualified Data.List as DL (head)
-import System.Directory   
+import System.Directory
 import System.IO (readFile)
 --import Data.List.Split (splitOn)
 import Control.Monad
@@ -13,7 +13,7 @@ import Data.Csv
 import Data.Char
 import qualified Data.Vector as V
 import Data.Either.Unwrap
---import Text.ParserCombinators.Parsec 
+--import Text.ParserCombinators.Parsec
 
 getResultR :: Handler Html
 getResultR = do
@@ -31,16 +31,16 @@ getResultR = do
     let tempDirectoryURL = tempDirectoryRootURL ++ sessionId ++ "/"
     let tempDirectoryURLjs = DT.pack ("../taws_tmp/taws/" ++ sessionId ++ "/")
     blaststarted <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastbegin"))
-    blastdone <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastdone"))  
+    blastdone <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastdone"))
     started <- liftIO (doesFileExist (temporaryDirectoryPath ++ "begin"))
-    done <- liftIO (doesFileExist (temporaryDirectoryPath ++ "done"))  
+    done <- liftIO (doesFileExist (temporaryDirectoryPath ++ "done"))
     let unfinished = not done
     resultmsg <- liftIO $ buildResultMsg done started blastdone blaststarted
     resultstring <-liftIO (retrieveResultCsv done temporaryDirectoryPath)
     archivePresent <- liftIO $ doesFileExist (temporaryDirectoryPath ++ "result.zip")
     let archivelink = if archivePresent then (tempDirectoryURL ++ "result.zip")
                                         else ""
-    
+
     if started
        then do
          if done
@@ -85,7 +85,7 @@ retrieveResultCsv done temporaryDirectoryPath = do
        return resultstring
      else do
          return "Your job is still running."
-         
+
 
 
 

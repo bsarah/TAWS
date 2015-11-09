@@ -1,12 +1,17 @@
 <span ##{aDomId} style="color:red;float:left;">
   <div class="alert alert-danger" role="alert">
     Please enable javascript.
-<div class="page-header">
-  <h2><span class="label label-default">Webservice</h2>
-<div class="spacer">
-    <font size="4">
-      Transalign is a homology search tool that uses indirect (transitive) alignments to build pairwise alignments in a more sensitive way. To use this program you can either download the code (see tool page) or use our webservice.
+<!-- <div class="page-header"> -->
+  <h2><span class="label label-default">Overview</h2>
+  <br>
+<!--  <div class="spacer"> -->
+    <font size="3">
+      Transalign is a homology search tool that uses indirect (transitive) alignments to build pairwise alignments in a more sensitive way. To use this program you can either download the code (see our <a href="https://github.com/bsarah/transalign/tree/vector-work">Github repo</a>) or use our webservice (see below).
+      <br>
+      If you want to learn more about the program please see the <a href="http://localhost:3000/tool">Tool page</a>. Please see the <a href="http://localhost:3000/help">Help page</a> if you need further help or citation information.
      <hr />
+  <h2><span class="label label-default">Webservice</h2>
+    <br>
      <font size="3">
       To use the webservice just upload a fasta file containing your query sequences or paste your sequence of interest in the test area.
     <br>
@@ -18,8 +23,10 @@
 
     <br>
     <hr />
+  <h2><span class="label label-default">Example</h2>
+   <br>
     <font size="3">
-     To run an example just use the sample button. This will submit gene 452 of the species <i>Gadus morhua</i> (Cod).  
+     To run an example just use the sample button. This will submit gene 452 of the species <i>Gadus morhua</i> (Cod).
     <br>
     <form method=post action=@{HomeR}#form enctype=#{sampleEnctype}>
       ^{sampleWidget}

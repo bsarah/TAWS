@@ -1,4 +1,3 @@
- 
 <div class="page-header">
   <h2><span class="label label-default">Commandline Tool</h2>
 <br>
@@ -46,7 +45,7 @@ You should now have the necessary input data, and you can run
 
 <h3>Transalign options</h3>
 
-You can display the brief, built-in help by running 
+You can display the brief, built-in help by running
 `transalign --help`.  This gives the following output:
 <div class="bootstrap-demo">
    <pre><p>

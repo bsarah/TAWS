@@ -1,9 +1,56 @@
- 
 <div class="page-header">
-  <h2><span class="label label-default">Help</span><br>
+  <h2><span class="label label-default">Help</span>
+  <br>
+    <h3> Input </h3>
+    <font size="3">
+      As an input, the transalign webservice asks for a file in fasta format since the blast databases are already built. If you use the command line tool, you will need to build the blast databases yourself.
+      <br>
+      If you run the example, this is the input (not the complete sequence):
+      <br>
+      <br>
+      <div class="bootstrap-demo">
+        <pre><p>
+          >ENSGAUG00000000452_
+          CTCAGCTGTGAGGTGTCTGACGTGAAGACGGAGGTGAAATGGTACAAGGATGGGAAGCTGCTGACCTCCAGCAAGAACATCTCCTTTGAGGCCAAAGGCAAAACTCGCCTGCTGGTCATTGAAAAGGTGGAGAAGAAGGATGCTGGCGAGTANN...
+      <br>
+    <h3> Output </h3>
+    <font size="3">
+      The output is a list (by default sorted by score) that shows the hits found by aligning the query sequence to the SwissProt database using UniRef50 as an intermediate database.
+      <br>
+      The output will look like this (not the complete list):
+      <br>
+      <br>
+      <div class="bootstrap-demo">
+        <pre><p>
+          ENSGAUG00000000452_	OBSCN_MOUSE	 2098.71	   3242	 0.65	     1	 12652	  1619	  8582
+          ENSGAUG00000000452_	OBSCN_HUMAN	 1836.06	   3197	 0.57	     1	 12646	  1094	  7649
+          ENSGAUG00000000452_	TITIN_MOUSE	 1305.81	   3170	 0.41	     1	 12643	   123	 35213
+          ENSGAUG00000000452_	TITIN_HUMAN	  857.63	   2453	 0.35	     1	 10450	   123	 34350
+          ENSGAUG00000000452_	TITIN_DROME	  809.70	   2450	 0.33	     1	 12355	   274	 18079
+          ENSGAUG00000000452_	UNC89_CAEEL	  741.14	   2377	 0.31	    31	 12889	   578	  7733
+          ENSGAUG00000000452_	UNC22_CAEEL	  709.14	   2544	 0.28	  1846	 10405	     4	  7144
+          ENSGAUG00000000452_	HMCN1_HUMAN	  661.29	   2527	 0.26	     1	 12895	   449	  5462
+          ENSGAUG00000000452_	HMCN2_MOUSE	  640.73	   2484	 0.26	     1	 12895	   447	  4934
+          ENSGAUG00000000452_	HMCN2_HUMAN	  634.47	   2611	 0.24	     1	 12895	   446	  4899
+          ...
 
-<h2 id="toc"> Table of contents: </h2><br>
+      <br>
+      The columns denote: Query, Target, Score, Alignment length, Average score, Query start, Query end, Target start, Target end.<br>
+      The webservice provides a table such that sorting can be done dynamically for other columns.
+      <br>
+      The databases were downloaded here: <a href="http://www.uniprot.org/uniref/">UniRef</a> and <a href="http://www.uniprot.org/uniprot/">UniProt</a>
+      <br>
+  <hr />
+  <h2><span class="label label-default">Contact</span>
+  <br>
+  <font size="3">
+    The tool is based on this <a href="http://dx.plos.org/10.1371/journal.pone.0054422">publication</a> and was updated during Google Summer of Code 2014 (see the <a href="http://biohaskell.org/GSoC_blog">corresponding blog</a> for further information). <br>
+      For further questions, please contact bsarah at bioinf.uni-leipzig.de.
+    <br>
+
+<!-- <h2 id="toc"> Table of contents: </h2><br>
           <div class="list-group">
             <a href="#ws" class="list-group-item">Webservice</a>
             <a href="#tool" class="list-group-item">Commandline Tool</a>
             <a href="#benchmark" class="list-group-item">Benchmark</a>
+-->
