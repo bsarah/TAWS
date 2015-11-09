@@ -1,118 +1,136 @@
 <div class="page-header">
-  <h2><span class="label label-default">Commandline Tool</h2>
-<br>
+  <h1><span class="label label-default" style="float:right;">Tool</h1>
+  <br>
 
-<h3> Transalign - calculate transitive alignments </h3>
 
-This program calculates _transitive alignments_, it takes as its input
-a set of alignmnets from a set of _query_ sequences to an
-_intermediate database_, a set of aligmnets from the intermediate
-database to a _target database_, and outputs a set of alignments from
-the queries to the targets.
-<br>
-Typically, the target database is well described but distantly related
-to the query sequences, and the intermediate database is large, but
-less well described. Using the intermediate to provide a large
-evolutionary _context_ allows `transalign` to detect distant
-relationships with a higher sensitivity than direct alignments, and
-without needing to construct explicit stochastic models of the
-targets.
-<br>
+    <h3><span class="label label-default" style="float:left;background-color:silver">Transalign - calculate transitive alignments</h3>
+      <br>
+      <br>
+      <img src=@{StaticR images_blastx_transalign_png} style="float:right;height:200px;width:600px;" alt="Transitive alignments">
+      This program calculates transitive alignments, it takes as its input
+      a set of alignmnets from a set of query sequences to an
+      intermediate database, a set of aligmnets from the intermediate
+      database to a target database, and outputs a set of alignments from
+      the queries to the targets.
+      <br>
+      Typically, the target database is well described but distantly related
+      to the query sequences, and the intermediate database is large, but
+      less well described. Using the intermediate to provide a large
+      evolutionary context allows <i>transalign</i> to detect distant
+      relationships with a higher sensitivity than direct alignments, and
+      without needing to construct explicit stochastic models of the
+      targets.
+      <br>
+      The figure depicts the transitive alignment of two sequences with two hits in the intermediate database (further hits omitted). 
+      In our case, 
+      <a href="http://www.uniprot.org/uniref/">UniRef</a> is the intermediate database 
+      and <a href="http://www.uniprot.org/uniprot/">SwissProt</a> the target database. Based on the alignments towards the intermediate database and thus, 
+      the overlapping region in the target sequence, the transitive alignment is created (dashed line).
 
-<h3> Running transalign </h3>
 
-First, you need BLAST results in XML format, and an installed
-`transalign` executable (see the next section for this).  This will
-require a bit of disk space.  We're going to use UniRef 50 as the
-intermediate database, and SwissProt (sprot.fa) as the final target.
-The process will look something like this:
+    <h3><span class="label label-default" style="float:left;background-color:silver">Running TransAlign</h3>
+    <br>
+    <br>
+      First, you need BLAST results in XML format, and an installed
+      <i>transalign</i> executable (see the next section for this).  
+      This will require a bit of disk space. 
+      We're going to use UniRef 50 as the
+      intermediate database, and SwissProt (sprot.fa) as the final target.
+      The process will look something like this:
+      <br>
+      <div class="bootstrap-demo">
+        <pre><p>
+          makeblastdb -in uniref50.fa -dbtype prot
+          makeblastdb -in sprot.fa -dbtype prot
+          blastx -query input.fa -db uniref50.fa -evalue 1e-4 -num_threads 8 -outfmt 5 -out inp_vs_u50.xml
+          blastp -query uniref50.fa -db sprot.fa -evalue 1e-4 -num_threads 8 -outfmt 7 -out u50_vs_sp.xml
 
-<div class="bootstrap-demo">
-   <pre><p>
-    formatdb -i uniref50.fa -pT
-    formatdb -i sprot.fa -pT
-    blastx -i input.fa -d uniref50.fa -e1e-4 -a 8 -m 7 -o inp_vs_u50.xml
-    blastp -i uniref50.fa -d sprot.fa -e1e-4 -a 8 -m 7 -o u50_vs_sp.xml
+      This is based on blast+ version 2.31.
+      <br>
+      Now you can start transalign. By running 'transalign --help' you will get the following options:
+      <br>
+      <div class="bootstrap-demo">
+        <pre><p>
 
-(Options are: `-e` limits the evalue of hits to avoid generating an excess of falsep positives, `-a` specifies the number of parallel threads, and `-m`
-specifies the output format, in this case XML. These flags are based on blastx version 2.25, in the current version (2.31) flags were changed.)
-<br>
-You should now have the necessary input data, and you can run
+          transalign v0.1, ©2012 Ketil Malde
 
-<div class="bootstrap-demo">
-   <pre><p>
-    transalign inp_vs_u50.xml u50_vs_sp.xml > inp_vs_sp.txt
+            transalign [OPTIONS] [BLASTXML FILES]
+            Calculate sequence alignments transitively.
 
-<h3>Transalign options</h3>
+            Common flags:
+              -l --long          long output detailing matching positions
+              -c --cache         generate alignment cache for initial alignment
+              -n --limit=INT     max number of alignments to consider
+              -o --outfile=ITEM  output to file
+              -e --extract=ITEM  explicit list of alignments to extract
+              -? --help          Display help message
+              -V --version       Print version information
+              -v --verbose       Loud verbosity
+              -q --quiet         Quiet verbosity
 
-You can display the brief, built-in help by running
-`transalign --help`.  This gives the following output:
-<div class="bootstrap-demo">
-   <pre><p>
+      Long output produces a large table matching query positions with
+      target positions, while the default is to output a table similar to
+      BLAST tabular output.
+      <br>
+      Sometimes BLAST will generate a large number of alignments (for
+      instance will very repetitive proteins generate many alternative
+      pairwise matches) which causes `transalign` to consume a substantial
+      amount of memory.  You can limit the number of considered alignments
+      using `-n`.
+      <br>
+      Using the `-e` option, `transalign` outputs only alignments for the
+      requested query sequences.  This is most useful when the alignment
+      caches are already generated.
+      <br>
+      To speed up operation and avoid doing the same work over, `transalign`
+      builds alignment caches (for BLAST results `foo.xml`, it will create a
+      directory `foo.xml.d` containing the cache).  You can also construct
+      this cache separately, using `blastextract foo.xml`.  There is also a
+      program, `showcache`, to inspect a cached alignment.  The default is
+      to build a cache for the second step, but not the first, `-c` builds
+      caches for both input files.
+      <br>
+      You should now have the necessary input data, and you can run:
+      <br>
+      <div class="bootstrap-demo">
+        <pre><p>
+          transalign inp_vs_u50.xml u50_vs_sp.xml > inp_vs_sp.txt
 
-    transalign v0.1, ©2012 Ketil Malde
 
-    transalign [OPTIONS] [BLASTXML FILES]
-    Calculate sequence alignments transitively.
+    <h3><span class="label label-default" style="float:left;background-color:silver">Good and bad practices</h3>
+    <br>
+    <br>
+      <img src=@{StaticR images_plotall2_png} style="float:right;height:500px;width:600px;" alt="GSoC benchmarks">
+      As the BLAST XML output can sometimes be large, transalign will
+      parse these files once to generate a cache for them. This will
+      generate a large number of files in a single directory, so you need a
+      file system that handles this.  Some do, but NFS is not one of
+      them.
+      <br>
+      Even though the program was updated to be able to run on usual machines, creating the xml files and the cache (especially the 'big' 
+      one, between UniRef50 and SProt) still needs a lot of time and space resources. With this webservice we already provide this data,
+      such that the user just needs to input the query sequences in fasta format.
+      <br>
 
-    Common flags:
-      -l --long          long output detailing matching positions
-      -c --cache         generate alignment cache for initial alignment
-      -n --limit=INT     max number of alignments to consider
-      -o --outfile=ITEM  output to file
-      -e --extract=ITEM  explicit list of alignments to extract
-      -? --help          Display help message
-      -V --version       Print version information
-      -v --verbose       Loud verbosity
-      -q --quiet         Quiet verbosity
+    <h3><span class="label label-default" style="float:left;background-color:silver">Benchmarks</h3>
+    <br>
+    <br>
+      During Google Summer of Code 2014 the program was updated such that it can run on smaller machines. The figure shows 
+      how time and memory consumption were decreased step by step. Here, Total means the total time consumption which is composed of 'MUT', the time the program uses to calculate the alignments and 'GC', the time needed to to garbage collection. Mem shows the memory consumption of the program. 
+      For further information, see the <a href="http://biohaskell.org/GSoC_blog">corresponding blog</a>.
 
-Long output produces a large table matching query positions with
-target positions, while the default is to output a table similar to
-BLAST tabular output.
-<br>
-Sometimes BLAST will generate a large number of alignments (for
-instance will very repetitive proteins generate many alternative
-pairwise matches) which causes `transalign` to consume a substantial
-amount of memory.  You can limit the number of considered alignments
-using `-n`.
-<br>
-Using the `-e` option, `transalign` outputs only alignments for the
-requested query sequences.  This is most useful when the alignment
-caches are already generated.
-<br>
-To speed up operation and avoid doing the same work over, `transalign`
-builds alignment caches (for BLAST results `foo.xml`, it will create a
-directory `foo.xml.d` containing the cache).  You can also construct
-this cache separately, using `blastextract foo.xml`.  There is also a
-program, `showcache`, to inspect a cached alignment.  The default is
-to build a cache for the second step, but not the first, `-c` builds
-caches for both input files.
 
-<h3> Good and bad practices</h3>
+    <h3><span class="label label-default" style="float:left;background-color:silver">Downloading and installing TransAlign</h3>
+    <br>
+    <br>
+      The program is written in Haskell, and distributed as source code.
+      This means you need a working Haskell compiler and environment.
+      The current version can be downloaded
+      <a href="https://github.com/bsarah/transalign/tree/vector-work">here</a>.
+      <br>
+      See the generic
+      <a href="http://biohaskell.org/Installation">installation instructions</a>
+      for details on the various ways to acquire and install `transalign`.
 
-As the BLAST XML output can sometimes be large, transalign will
-parse these files once to generate a cache for them.  This will
-generate a large number of files in a single directory, so you need a
-file system that handles this.  Some do, but NFS is _not_ one of
-them.
-
-<h3> Examining the output</h3>
-
-The output is in a table format, somewhat similar to BLAST's (-m
-8). The columns are: Query, Target, Score, Alignment length, Average
-score, Query start, Query end, Target start, Target end.
-
-<h3> Downloading and installing transalign</h3>
-
-The program is written in Haskell, and distributed as source code.
-This means you need a working Haskell compiler and environment.
-The current version can be downloaded
-<a href="https://github.com/bsarah/transalign/tree/vector-work">here</a>.
-<br>
-See the generic
-<a href="http://biohaskell.org/Installation">installation instructions</a>
-for details on the various ways to acquire and install `transalign`.
-
-<br>
 
 

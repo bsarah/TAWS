@@ -5,9 +5,9 @@ module Handler.Home where
 
 import Import
 import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
-                              withSmallInput, withLargeInput)
-import Yesod.Form.Fields (textareaField)
-import Yesod.Form.Types (FormResult(..))
+                              withSmallInput)
+-- import Yesod.Form.Fields (textareaField)
+-- import Yesod.Form.Types (FormResult(..))
 import Data.Int (Int16)
 import System.Process
 import System.Random
@@ -51,15 +51,15 @@ postHomeR = do
             --Create tempdir and session-Id
             sessionId <- liftIO createSessionId  --session ID
             -- include revprox
---            let outputPath = "/scr/kronos/sberkemer/tmp/"  
+--            let outputPath = "/scr/kronos/sberkemer/tmp/"
             let outputPath = DT.unpack $ appTempDir $ appSettings app
 --            let geQueueName = "c_highmem.q"
             let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
-            let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"  
+            let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
 --            let tawsLogPath = temporaryDirectoryPath ++ "Log" --not needed
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
             let dataPath = DT.unpack $ appDataDir $ appSettings app
-            let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache 
+            let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache
             let programPath = DT.unpack $ appProgramDir $ appSettings app
             liftIO (createDirectory temporaryDirectoryPath)
             let inpType = whichWay inputsubmission
@@ -101,16 +101,16 @@ postHomeR = do
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
             _ <- liftIO (runCommand (qsubcommand))
-            --Render page            
+            --Render page
             defaultLayout $ do
                 aDomId <- newIdent
                 -- TODO if revprox set uncommand here!!!!
                 let approotjs = appRoot $ appSettings app
                 let sessionIdInsert =  DT.pack sessionId
-                let sessionIdjs = sessionId                       
+                let sessionIdjs = sessionId
                 $(widgetFile "calc")
                 setTitle "Welcome To TAWS!"
-        else do getHomeR  
+        else do getHomeR
 
 
 --custom the input form
@@ -137,7 +137,7 @@ sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInp
 randomid :: Int16 -> String
 randomid number = "taws" ++ (show number)
 
-createSessionId :: IO String                  
+createSessionId :: IO String
 createSessionId = do
   randomNumber <- randomIO :: IO Int16
   let sessionId = randomid (abs randomNumber)
@@ -147,14 +147,14 @@ createSessionId = do
 writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea) -> IO()
 writesubmissionData temporaryDirectoryPath inputsubmission = do
    if(isJust inputsubmission)
-     then do 
+     then do
        let (filepath,pastestring) = fromJust inputsubmission
        if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
                            else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 $ unTextarea (fromJust  pastestring)))
      else return ()
 
 --check fasta format
-checkSubmission :: FormResult (Maybe FileInfo,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text) 
+checkSubmission :: FormResult (Maybe FileInfo,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text)
 checkSubmission (FormSuccess (a,b)) = Just (a,b)
 checkSubmission _ = Nothing
 
