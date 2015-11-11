@@ -1,6 +1,5 @@
 {-# Language DoAndIfThenElse #-}
 
-
 module Handler.Home where
 
 import Import
@@ -82,21 +81,22 @@ postHomeR = do
             let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
             let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
-            let delcommand = "rm -r" ++ smallcachePath ++ ".d \n"
+            let delcommand = "rm -r " ++ smallcachePath ++ ".d \n"
             let delcommanderr = "rm " ++ taerrorPath ++ "\n"
-            let blastdbpath = "export BLASTDB=/scr/kronos/sberkemer/uniref50.fasta \n"
+            let blastdbpath = "export BLASTDB=" ++ dataPath ++ "uniref50.fasta \n"
             --sun grid engine settings
             let qsubLocation = "/usr/bin/qsub"
             let geErrorDir = temporaryDirectoryPath ++ "gelog"
             let geLogOutputDir = temporaryDirectoryPath ++ "gelog"
             let bashscriptpath = temporaryDirectoryPath ++ "qsub.sh"
             let bashheader = "#!/bin/bash\n"
-            let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=/scr/kronos/sberkemer/"
-            let bashmemrequest = "#$ -l mem_free=40G\n"
-            let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
+            let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=" ++ dataPath ++ "\n"
+            let bashmemrequest = "#$ -l mem_free=35G\n"
+            --let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
+            --let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
+            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
             let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
@@ -128,9 +128,6 @@ sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInp
 --sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
 --    <$> areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/data/452.xml")
 --    <*> areq hiddenField (withSmallInput "") (Just "")
-
-
-
 
 -- Auxiliary functions:
 -- | Adds cm prefix to pseudo random number
