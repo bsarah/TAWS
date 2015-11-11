@@ -1,0 +1,7 @@
+#Enter the following reverseproxy entry into /etc/apache2/sites-available/rna.tbi.univie.ac.at
+
+
+        # Proxy for taws background server
+        ProxyPass /taws http://localhost:6001 retry=0
+        ProxyPassReverse /taws http://rna.tbi.univie.ac.at/taws
+
