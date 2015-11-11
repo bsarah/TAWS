@@ -35,9 +35,9 @@ $newline never
                   <img src=@{StaticR images_tawslogo_small_long2_png} style="float:center;height:175px;width:750px;" alt="TAWS">
                    <br>
                 <div class="btn-group btn-group-lg navbar-right" role="group" aria-label="...">
-                  <a href="http://localhost:3000" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:180px;font-size:20px;border-style:solid;"><img src=@{StaticR images_greentaw_png} style="float:center;height:50px;width:50px;">Webservice</button></a>
-                      <a href="http://localhost:3000/tool" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_bluetaw_png} style="float:center;height:50px;width:50px;">Tool</button></a>
-                  <a href="http://localhost:3000/help" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_yellowtaw_png} style="float:center;height:50px;width:50px;">Help</button></a>
+                  <a href="#{appRoot $ appSettings master}" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:180px;font-size:20px;border-style:solid;"><img src=@{StaticR images_greentaw_png} style="float:center;height:50px;width:50px;">Webservice</button></a>
+                      <a href=" #{appRoot $ appSettings master}/tool" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_bluetaw_png} style="float:center;height:50px;width:50px;">Tool</button></a>
+                  <a href=" #{appRoot $ appSettings master}/help" class="active"><button type="button" class="btn btn-default navbar-btn" style="height:70px;width:120px;font-size:20px;border-style:solid;"><img src=@{StaticR images_yellowtaw_png} style="float:center;height:50px;width:50px;">Help</button></a>
                 <div id="main" role="main" class="jumbotron" style="background-color:#fff;border-style:none;border-width:1px;border-color:#eee;height:200px;">
 
 
