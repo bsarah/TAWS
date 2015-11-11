@@ -7,6 +7,7 @@
       <br>
       <br>
       <img src=@{StaticR images_blastx_transalign_png} style="float:right;height:200px;width:600px;" alt="Transitive alignments">
+
       This program calculates transitive alignments, it takes as its input
       a set of alignmnets from a set of query sequences to an
       intermediate database, a set of aligmnets from the intermediate
@@ -20,13 +21,11 @@
       relationships with a higher sensitivity than direct alignments, and
       without needing to construct explicit stochastic models of the
       targets.
-      <br>
       The figure depicts the transitive alignment of two sequences with two hits in the intermediate database (further hits omitted). 
-      In our case, 
-      <a href="http://www.uniprot.org/uniref/">UniRef</a> is the intermediate database 
-      and <a href="http://www.uniprot.org/uniprot/">SwissProt</a> the target database. Based on the alignments towards the intermediate database and thus, 
-      the overlapping region in the target sequence, the transitive alignment is created (dashed line).
-
+      In our case, <a href="http://www.uniprot.org/uniref/">UniRef</a> is the intermediate database 
+      and <a href="http://www.uniprot.org/uniprot/">SwissProt</a> the target database. Based on the alignments towards 
+      the intermediate database and thus, the overlapping region in the target sequence, the transitive alignment is created (dashed line).
+      <br>
 
     <h3><span class="label label-default" style="float:left;background-color:silver">Running TransAlign</h3>
     <br>

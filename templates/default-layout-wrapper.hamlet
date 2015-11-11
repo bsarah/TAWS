@@ -6,7 +6,7 @@ $newline never
 \<!--[if gt IE 8]><!-->
 <html class="no-js" lang="en"> <!--<![endif]-->
   <head>
-    <link rel="icon" href="http://www.bioinf.uni-leipzig.de/~bsarah/greentaw_favicon.png">
+    <link rel="icon" href="http://www.bioinf.uni-leipzig.de/~bsarah/favicon_fivetaws.png">
     <meta charset="UTF-8">
 
     <title>#{pageTitle pc}

@@ -9,12 +9,21 @@
     <br>
 <!--  <div class="spacer"> -->
     <font size="3">
-      <img src=@{StaticR images_db_example_png} style="float:right;height:350px;width:350px;" alt="Transitive alignments">
-      Transalign is a homology search tool that uses indirect (transitive) alignments to build pairwise alignments in a more sensitive way. To use this program you can either download the code (see our <a href="https://github.com/bsarah/transalign/tree/vector-work">Github repo</a>) or use our webservice (see below).
+      <table border="0" style="float:right;height:350px;width:350px;">
+        <tr>
+          <td><img src=@{StaticR images_db_example_png} style="float:right;height:350px;width:350px;" alt="Transitive alignments"></td>
+        <tr>
+          <td>
+            <font size="2">
+              The figure depicts how transitive alignments work. In this case, UniRef 50 
+              is the intermediate database and SwissProt the target database. The numbers in parentheses 
+              show the percentage of hits aligned with blast (black lines) 
+              and transitively aligned with TransAlign (dashed line) using a protein of the 
+              salmon louse (<i>Lepeophtheirus salmonis</i>) as input.</td>
       <br>
-      The figure on the right depicts how transitive alignments work. In this case, UniRef 50 is the intermediate database and SwissProt the target database. The numbers in parentheses show the percentage of hits aligned with blast (black lines) 
-      and transitively aligned with TransAlign (dashed line) using a protein of the 
-      salmon louse (<i>Lepeophtheirus salmonis</i>) as input.
+      Transalign is a homology search tool that uses indirect (transitive) alignments to build 
+      pairwise alignments in a more sensitive way. To use this program you can either download 
+      the code (see our <a href="https://github.com/bsarah/transalign/tree/vector-work">Github repo</a>) or use our webservice (see below).
       <br>
       If you want to learn more about the program please see the Tool page. If you need further help or citation information see the Help page.
      <hr />
