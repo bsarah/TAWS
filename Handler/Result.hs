@@ -38,7 +38,7 @@ getResultR = do
     resultmsg <- liftIO $ buildResultMsg done started blastdone blaststarted
     resultstring <-liftIO (retrieveResultCsv done temporaryDirectoryPath)
     archivePresent <- liftIO $ doesFileExist (temporaryDirectoryPath ++ "result.zip")
-    let archivelink = if archivePresent then (tempDirectoryURL ++ "result.zip")
+    let archivelink = if archivePresent then ("Download results here:  <a href=\"" ++ tempDirectoryURL ++ "result.zip"  ++ "\">Zip Archive</a>")
                                         else ""
 
     if started

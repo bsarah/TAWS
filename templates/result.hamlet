@@ -9,6 +9,6 @@
 <div class="spacer">
 <h2>Progress:
 <div class="alert alert-info" role="alert"> #{resultmsg}<br>
-  Download results here: <a href="#{archivelink}">Zip Archive</a>
+  #{preEscapedToMarkup archivelink}
 <br>
   #{preEscapedToMarkup resultstring}
