@@ -58,7 +58,8 @@ postHomeR = do
 --            let tawsLogPath = temporaryDirectoryPath ++ "Log" --not needed
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
             let dataPath = DT.unpack $ appDataDir $ appSettings app
-            let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache
+            --let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache
+            let bigcachePath = dataPath ++ "U50_vs_SP.xml"
             let programPath = DT.unpack $ appProgramDir $ appSettings app
             liftIO (createDirectory temporaryDirectoryPath)
             let inpType = whichWay inputsubmission
@@ -71,7 +72,7 @@ postHomeR = do
             let taerrorPath = temporaryDirectoryPath ++ "errorMsg.txt"
             let inputPath = if (inpType == 3) then (dataPath ++ (DT.unpack (fromJust samplesubmission)))
                                               else temporaryDirectoryPath ++ "input.fa"
-            let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 8 -outfmt 5 -out " ++ smallcachePath ++ "\n"
+            let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 5 -outfmt 5 -out " ++ smallcachePath ++ "\n"
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
@@ -81,7 +82,7 @@ postHomeR = do
             let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
             let donecommand = "touch " ++ temporaryDirectoryPath ++ "/done \n"
             let begincommand = "touch " ++ temporaryDirectoryPath ++ "/begin \n"
-            let delcommand = "rm -r " ++ smallcachePath ++ ".d \n"
+            let delcommand = "rm -r " ++ smallcachePath ++ "\n"
             let delcommanderr = "rm " ++ taerrorPath ++ "\n"
             let blastdbpath = "export BLASTDB=" ++ dataPath ++ "uniref50.fasta \n"
             --sun grid engine settings
@@ -91,13 +92,13 @@ postHomeR = do
             let bashscriptpath = temporaryDirectoryPath ++ "qsub.sh"
             let bashheader = "#!/bin/bash\n"
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=" ++ dataPath ++ "\n"
-            let bashmemrequest = "#$ -l mem_free=35G\n"
+            let bashmemrequest = "#$ -l mem_free=35.7G\n"
             --let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
             --let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
             let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
-            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=12G " ++ " -q " ++ (geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
+            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=35.7G " ++ " -q " ++ (geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
             _ <- liftIO (runCommand (qsubcommand))
