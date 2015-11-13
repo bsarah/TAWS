@@ -84,7 +84,7 @@ retrieveResultCsv done temporaryDirectoryPath = do
        let resultstring = "<table id=\"myTable\" class=\"tablesorter\">"++ tableHeader ++ "<tbody>" ++ insidetable ++ "</tbody>" ++ "</table>"
        return resultstring
      else do
-         return "Your job is still running."
+         return ""
 
 
 
