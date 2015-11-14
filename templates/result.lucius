@@ -36,45 +36,41 @@ i.yellow {
     color:yellow;
 }
 
-/* 
-Following css was copied from d3js example http://bl.ocks.org/robschmuecker/7880033
-*/
-
-.node {
-    cursor: pointer;
+/* tables */
+table.tablesorter {
+	font-family:arial;
+	margin:10px 0pt 15px;
+	font-size: 8pt;
+	width: 100%;
+	text-align: left;
 }
-
-.overlay{
-      background-color:#EEE;
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: ##5cb85c;
+	border: 1px solid #FFF;
+	font-size: 8pt;
+	padding: 4px;
 }
-   
-.node circle {
-    fill: #fff;
-    stroke: steelblue;
-    stroke-width: 1.5px;
+table.tablesorter thead tr .header {
+	background-image: url(http://nibiru.tbi.univie.ac.at/taws_static/ts/themes/blue/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
 }
-   
-.node text {
-    font-size:10px; 
-    font-family:sans-serif;
+table.tablesorter tbody td {
+	color: #3D3D3D;
+	padding: 4px;
+	background-color: #FFF;
+	vertical-align: top;
 }
-   
-.link {
-    fill: none;
-    stroke: #ccc;
-    stroke-width: 1.5px;
+table.tablesorter tbody tr.odd td {
+	background-color:#F0F0F6;
 }
-
-.templink {
-    fill: none;
-    stroke: red;
-    stroke-width: 3px;
+table.tablesorter thead tr .headerSortUp {
+	background-image: url(http://nibiru.tbi.univie.ac.at/taws_static/ts/themes/blue/asc.gif);
 }
-
-.ghostCircle.show{
-      display:block;
+table.tablesorter thead tr .headerSortDown {
+	background-image: url(http://nibiru.tbi.univie.ac.at/taws_static/ts/themes/blue/desc.gif);
 }
-
-.ghostCircle, .activeDrag .ghostCircle{
-       display: none;
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #8dbdd8;
 }

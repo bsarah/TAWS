@@ -28,6 +28,7 @@ getResultR = do
     let outputPath = DT.unpack $ appTempDir $ appSettings app
     let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
     let tempDirectoryRootURL = "http://nibiru.tbi.univie.ac.at/taws_tmp/taws/"
+    let staticDirectoryURL = "http://nibiru.tbi.univie.ac.at/taws_static/"
     let tempDirectoryURL = tempDirectoryRootURL ++ sessionId ++ "/"
     let tempDirectoryURLjs = DT.pack ("../taws_tmp/taws/" ++ sessionId ++ "/")
     blaststarted <- liftIO (doesFileExist (temporaryDirectoryPath ++ "blastbegin"))
@@ -85,9 +86,6 @@ retrieveResultCsv done temporaryDirectoryPath = do
        return resultstring
      else do
          return ""
-
-
-
 
 constructTableLineContent :: (String,String,String,String,String,String,String,String,String) -> String
 constructTableLineContent (a,b,c,d,e,f,g,h,i) = "<tr>"++"<th>"++ a ++ "</th>"
