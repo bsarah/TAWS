@@ -36,7 +36,7 @@ getResultR = do
     started <- liftIO (doesFileExist (temporaryDirectoryPath ++ "begin"))
     done <- liftIO (doesFileExist (temporaryDirectoryPath ++ "done"))
     let unfinished = not done
-    resultmsg <- liftIO $ buildResultMsg done started blastdone blaststarted
+    (resultmsg,resultclass) <- liftIO $ buildResultMsg done started blastdone blaststarted
     resultstring <-liftIO (retrieveResultCsv done temporaryDirectoryPath)
     archivePresent <- liftIO $ doesFileExist (temporaryDirectoryPath ++ "result.zip")
     let archivelink = if archivePresent then ("Download results here:  <a href=\"" ++ tempDirectoryURL ++ "result.zip"  ++ "\">Zip Archive</a>")
@@ -105,10 +105,10 @@ constructTableLineContent (a,b,c,d,e,f,g,h,i) = "<tr>"++"<th>"++ a ++ "</th>"
                                                  ++"<th>"++ h ++ "</th>"
                                                  ++"<th>"++ i ++ "</th>"++" </tr>"
 
-buildResultMsg :: Bool -> Bool -> Bool -> Bool -> IO String
+buildResultMsg :: Bool -> Bool -> Bool -> Bool -> IO (String,String)
 buildResultMsg done started blastdone blaststarted = do
-    if done then return "Job completed!"
-            else if started then return "Blast run completed. Transalign is still running."
-                            else if blastdone then return "Blast run completed."
-                                              else if blaststarted then return "Blast is still running."
-                                                                   else do return "Your job is still running."
+    if done then return ("Job completed!","alert alert-success")
+            else if started then return ("Blast run completed. Transalign is still running.","alert alert-info")
+                            else if blastdone then return ("Blast run completed.","alert alert-info")
+                                              else if blaststarted then return ("Blast is still running.","alert alert-info")
+                                                                   else return ("Your job is still running.","alert alert-info")
