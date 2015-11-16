@@ -70,8 +70,7 @@ retrieveResultCsv done temporaryDirectoryPath = do
          }
        let tawsCSVPath = temporaryDirectoryPath ++ "result.txt"
        tawsCSV <- B.readFile tawsCSVPath
-       let decodedCsvOutput = V.toList (fromRight (decodeWith myOptions HasHeader (tawsCSV) :: Either String (V.Vector (String,String,String,String,String,String,String,String,String))))
-       let insidetable = concatMap constructTableLineContent decodedCsvOutput
+       let csvOutput = (decodeWith myOptions HasHeader (tawsCSV) :: Either String (V.Vector (String,String,String,String,String,String,String,String,String)))
        let tableHeader = "<thead><tr>"++"<th>"++ "Query" ++ "</th>"
                                        ++"<th>"++ "Target" ++ "</th>"
                                        ++"<th>"++ "Score" ++ "</th>"
@@ -82,8 +81,16 @@ retrieveResultCsv done temporaryDirectoryPath = do
                                        ++"<th>"++ "Target start" ++ "</th>"
                                        ++"<th>"++ "Target end" ++ "</th>"
                                        ++"</tr></thead>"
-       let resultstring = "<table id=\"myTable\" class=\"tablesorter\">"++ tableHeader ++ "<tbody>" ++ insidetable ++ "</tbody>" ++ "</table>"
-       return resultstring
+       if (isRight csvOutput)
+         then do
+           let decodedCsvOutput = V.toList (fromRight (decodeWith myOptions HasHeader (tawsCSV) :: Either String (V.Vector (String,String,String,String,String,String,String,String,String))))
+           let insidetable = concatMap constructTableLineContent decodedCsvOutput
+           let resultstring = "<table id=\"myTable\" class=\"tablesorter\">"++ tableHeader ++ "<tbody>" ++ insidetable ++ "</tbody>" ++ "</table>"
+           return resultstring
+         else do
+           -- add additional error handling here
+           let resultstring = "<table id=\"myTable\" class=\"tablesorter\">"++ tableHeader ++ "<tbody>" ++ "<td colspan=\"9\">No hits found</td>" ++ "</tbody>" ++ "</table>"
+           return resultstring
      else do
          return ""
 
