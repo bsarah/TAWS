@@ -91,14 +91,16 @@ postHomeR = do
             let geLogOutputDir = temporaryDirectoryPath ++ "gelog"
             let bashscriptpath = temporaryDirectoryPath ++ "qsub.sh"
             let bashheader = "#!/bin/bash\n"
+            let geJoinErrorsSwitch = "#$ -j y\n"
+            let geErrorPathSwitch = "#$ -e " ++ geErrorDir ++ "\n"
+            let geOutputPathSwitch = "#$ -o " ++ geLogOutputDir ++ "\n"            
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=" ++ dataPath ++ "\n"
-            let bashmemrequest = "#$ -l mem_free=29.1G\n"
+            let bashmemrequest = "#$ -l mem_free=30G\n"
             --let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
-            --let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ bashhostrequest ++parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
-            let bashcontent = bashheader ++ bashLDLibrary ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
-            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=29.1G " ++ " -q " ++ (geQueueName) ++ " -e " ++ geErrorDir ++ " -o " ++  geLogOutputDir ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
+            let bashcontent = bashheader ++ bashLDLibrary ++ geJoinErrorsSwitch ++ geErrorPathSwitch ++ geOutputPathSwitch ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++ tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
+            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=30G " ++ " -q " ++ (geQueueName) ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
             _ <- liftIO (runCommand (qsubcommand))
