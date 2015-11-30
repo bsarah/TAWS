@@ -76,7 +76,7 @@ postHomeR = do
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
-            let tacommand = programPath ++ "transalign "++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
+            let tacommand = programPath ++ "transalign +RTS -s -C -w -A100M -RTS " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
             let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
             let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
@@ -95,12 +95,12 @@ postHomeR = do
             let geErrorPathSwitch = "#$ -e " ++ geErrorDir ++ "\n"
             let geOutputPathSwitch = "#$ -o " ++ geLogOutputDir ++ "\n"            
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=" ++ dataPath ++ "\n"
-            let bashmemrequest = "#$ -l mem_free=30G\n"
+            let bashmemrequest = "#$ -l mem_free=25G\n"
             --let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
             let bashcontent = bashheader ++ bashLDLibrary ++ geJoinErrorsSwitch ++ geErrorPathSwitch ++ geOutputPathSwitch ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++ tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
-            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=30G " ++ " -q " ++ (geQueueName) ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
+            let qsubcommand = qsubLocation ++ " -N " ++ sessionId ++ " -l h_vmem=25G " ++ " -q " ++ (geQueueName) ++ " " ++ bashscriptpath ++ " > " ++ temporaryDirectoryPath ++ "GEJobid"
             liftIO (SI.writeFile geErrorDir "")
             liftIO (SI.writeFile bashscriptpath bashcontent)
             _ <- liftIO (runCommand (qsubcommand))
