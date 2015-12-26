@@ -40,7 +40,7 @@ postHomeR = do
     app <- getYesod -- contains all the generally set path variables
     --let handlerName = "postHomeR" :: Text
     let inputsubmission = case result of
-            FormSuccess (fasta,taxid) -> Just (fasta,taxid)
+            FormSuccess (fasta,taxid,blastfilter) -> Just (fasta,taxid,blastfilter)
             _ -> Nothing
     let samplesubmission = case sampleresult of
             FormSuccess (filename) -> Just (filename)
@@ -76,6 +76,7 @@ postHomeR = do
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
+            let blastfilter = setBlastFilter
             let tacommand = programPath ++ "transalign +RTS -s -C -w -A100M -RTS " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
             let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
@@ -117,10 +118,11 @@ postHomeR = do
 
 
 --custom the input form
-inputForm :: Form (Maybe FileInfo, Maybe Textarea)
-inputForm = renderBootstrap3 BootstrapBasicForm $ (,)
+inputForm :: Form (Maybe FileInfo, Maybe Textarea, Maybe Text)
+inputForm = renderBootstrap3 BootstrapBasicForm $ (,,)
     <$> fileAFormOpt "Upload a fasta file"
     <*> aopt textareaField (withSmallInput "or paste sequences in fasta format: \n") Nothing
+    <*> aopt textField (withSmallInput "Set optional blastfilter score: \n") Nothing
 
 
 sampleForm :: Form Text
@@ -144,30 +146,36 @@ createSessionId = do
   return sessionId
 
 
-writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea) -> IO()
+writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea,Maybe Text) -> IO()
 writesubmissionData temporaryDirectoryPath inputsubmission = do
    if(isJust inputsubmission)
      then do
-       let (filepath,pastestring) = fromJust inputsubmission
+       let (filepath,pastestring,blastfilter) = fromJust inputsubmission
        if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
                            else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 $ unTextarea (fromJust  pastestring)))
      else return ()
 
 --check fasta format
-checkSubmission :: FormResult (Maybe FileInfo,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text)
-checkSubmission (FormSuccess (a,b)) = Just (a,b)
+checkSubmission :: FormResult (Maybe FileInfo,Maybe Text,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text,Maybe Text)
+checkSubmission (FormSuccess (a,b,c)) = Just (a,b,c)
 checkSubmission _ = Nothing
 
 --check fasta format
-checkInput :: (Maybe FileInfo,Maybe Textarea) -> Int
-checkInput (res,something)
-  | isJust res = 1
-  | isJust something = 2
+checkInput :: (Maybe FileInfo,Maybe Textarea, Maybe Text) -> Int
+checkInput (fileupload,textarea,blastfilter)
+  | isJust fileupload = 1
+  | isJust textarea = 2
   | otherwise = 3
 
 -- check if some input exists if not return 3 (=samplesubmission).
 -- if input exists: if fasta file: return 1, if pasted sequence return two
-whichWay :: Maybe (Maybe FileInfo,Maybe Textarea) -> Int
+whichWay :: Maybe (Maybe FileInfo,Maybe Textarea, Maybe Text) -> Int
 whichWay inputsubmission
    | isJust inputsubmission = checkInput $ fromJust inputsubmission
    | otherwise = 3
+
+--
+setBlastFilter :: Maybe (Maybe FileInfo,Maybe Textarea,Maybe Text) -> String
+setBlastFilter inputsubmission
+  | isJust inputsubmission = maybe "" (\b -> "--blastfilter " ++ DT.unpack b ++ " ") ((\(_,_,a) -> a)(fromJust inputsubmission))
+  | otherwise = ""
