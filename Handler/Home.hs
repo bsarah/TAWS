@@ -50,15 +50,11 @@ postHomeR = do
             --Create tempdir and session-Id
             sessionId <- liftIO createSessionId  --session ID
             -- include revprox
---            let outputPath = "/scr/kronos/sberkemer/tmp/"
             let outputPath = DT.unpack $ appTempDir $ appSettings app
---            let geQueueName = "c_highmem.q"
             let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
             let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
---            let tawsLogPath = temporaryDirectoryPath ++ "Log" --not needed
             let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
             let dataPath = DT.unpack $ appDataDir $ appSettings app
-            --let bigcachePath = dataPath ++ "/U50_vs_SP.xml" --TODO change to bigcache
             let bigcachePath = dataPath ++ "U50_vs_SP.xml"
             let programPath = DT.unpack $ appProgramDir $ appSettings app
             liftIO (createDirectory temporaryDirectoryPath)
@@ -97,7 +93,7 @@ postHomeR = do
             let geOutputPathSwitch = "#$ -o " ++ geLogOutputDir ++ "\n"            
             let bashLDLibrary = "#$ -v LD_LIBRARY_PATH=" ++ dataPath ++ "\n"
             let bashmemrequest = "#$ -l mem_free=25G\n"
-            --let bashhostrequest = "#$ -l hostname=\"picard\"\n" --TODO change again!!!!
+            --let bashhostrequest = "#$ -l hostname=\"picard\"\n" 
             let parallelenv = "#$ -pe para 5\n"
             let bashPath = "#$ -v PATH=" ++ programPath ++ ":/usr/bin/:/bin/:$PATH\n"
             let bashcontent = bashheader ++ bashLDLibrary ++ geJoinErrorsSwitch ++ geErrorPathSwitch ++ geOutputPathSwitch ++ bashmemrequest ++ parallelenv ++ bashPath ++ blastdbpath ++ blastbegincommand ++ blastcommand ++ blastdonecommand ++ begincommand ++ tacommand ++ delcommand ++ delcommanderr ++ archivecommand ++ donecommand
@@ -108,7 +104,6 @@ postHomeR = do
             --Render page
             defaultLayout $ do
                 aDomId <- newIdent
-                -- TODO if revprox set uncommand here!!!!
                 let approotjs = appRoot $ appSettings app
                 let sessionIdInsert =  DT.pack sessionId
                 let sessionIdjs = sessionId
@@ -116,23 +111,14 @@ postHomeR = do
                 setTitle "Welcome To TAWS!"
         else do getHomeR
 
-
---custom the input form
 inputForm :: Form (Maybe FileInfo, Maybe Textarea, Maybe Text)
 inputForm = renderBootstrap3 BootstrapBasicForm $ (,,)
     <$> fileAFormOpt "Upload a fasta file"
     <*> aopt textareaField (withSmallInput "or paste sequences in fasta format: \n") Nothing
     <*> aopt textField (withSmallInput "Set optional blastfilter score: \n") Nothing
 
-
 sampleForm :: Form Text
 sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInput "") (Just "452.fa"))
---    <*> areq hiddenField (withSmallInput "") (Just "")
-
---sampleForm :: Form (Text,Text)
---sampleForm = renderBootstrap3 BootstrapBasicForm $ (,)
---    <$> areq hiddenField (withSmallInput "") (Just "/scr/kronos/sberkemer/data/452.xml")
---    <*> areq hiddenField (withSmallInput "") (Just "")
 
 -- Auxiliary functions:
 -- | Adds cm prefix to pseudo random number
@@ -144,7 +130,6 @@ createSessionId = do
   randomNumber <- randomIO :: IO Int16
   let sessionId = randomid (abs randomNumber)
   return sessionId
-
 
 writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea,Maybe Text) -> IO()
 writesubmissionData temporaryDirectoryPath inputsubmission = do
