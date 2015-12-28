@@ -5,7 +5,7 @@
 
 module Handler.Home where
 
-import Import hiding ((<|>),many)
+import Import hiding ((<|>),many,optional)
 import Prelude (read)
 import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
                               withSmallInput)
@@ -20,7 +20,6 @@ import qualified Data.Text.Encoding as DTE
 import qualified Data.Text as DT
 import Text.Parsec
 import Text.Parsec.ByteString
-import Control.Applicative hiding ((<|>),many)
 import Data.Either.Unwrap
 
 
@@ -213,7 +212,7 @@ genParserFasta = do
 genParserSequenceFragments :: GenParser ByteString st String
 genParserSequenceFragments = do
   _sequencefragment <- many1 (oneOf "AaBbCcDdEeFfGgHhIiKkLlMmNnPpQqRrSsTtUuVvWwYyZzXx*-")                
-  _ <- newline
+  _ <- optional newline
   return $ _sequencefragment
   
 -- | parse Fasta
