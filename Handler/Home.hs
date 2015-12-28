@@ -115,7 +115,7 @@ postHomeR = do
       defaultLayout $ do
         aDomId <- newIdent
         let parsingErrors = fromLeft validatedInput
-        let errorMsg = DT.pack (parsingErrors ++ "<br>")
+        let errorMsg = DT.pack ("<div class=\"alert alert-danger\" role=\"alert\">" ++ parsingErrors ++ "<br>")
         setTitle "Welcome To TAWS!"
         $(widgetFile "homepage") 
 
