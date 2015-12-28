@@ -1,12 +1,14 @@
 {-# Language DoAndIfThenElse #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Handler.Home where
 
-import Import
+import Import hiding ((<|>),many)
+import Prelude (read)
 import Yesod.Form.Bootstrap3 (BootstrapFormLayout (..), renderBootstrap3,
                               withSmallInput)
--- import Yesod.Form.Fields (textareaField)
--- import Yesod.Form.Types (FormResult(..))
 import Data.Int (Int16)
 import System.Process
 import System.Random
@@ -16,6 +18,11 @@ import Data.Maybe
 import qualified Data.ByteString as B
 import qualified Data.Text.Encoding as DTE
 import qualified Data.Text as DT
+import Text.Parsec
+import Text.Parsec.ByteString
+import Control.Applicative hiding ((<|>),many)
+import Data.Either.Unwrap
+
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -35,45 +42,37 @@ getHomeR = do
 
 postHomeR :: Handler Html
 postHomeR = do
-    ((result, _), _) <- runFormPost inputForm
-    ((sampleresult,_),_) <- runFormPost sampleForm
+    ((formResult, _), _) <- runFormPost inputForm
+    ((sampleResult,_),_) <- runFormPost sampleForm
     app <- getYesod -- contains all the generally set path variables
-    --let handlerName = "postHomeR" :: Text
-    let inputsubmission = case result of
-            FormSuccess (fasta,taxid,blastfilter) -> Just (fasta,taxid,blastfilter)
-            _ -> Nothing
-    let samplesubmission = case sampleresult of
-            FormSuccess (filename) -> Just (filename)
-            _ -> Nothing
-    if ((isJust inputsubmission) || (isJust samplesubmission))
+    --Create tempdir and session-Id
+    sessionId <- liftIO createSessionId  --session ID
+    let outputPath = DT.unpack $ appTempDir $ appSettings app
+    let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
+    let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
+    let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
+    let dataPath = DT.unpack $ appDataDir $ appSettings app
+    let bigcachePath = dataPath ++ "U50_vs_SP.xml"
+    let programPath = DT.unpack $ appProgramDir $ appSettings app
+    liftIO (createDirectory temporaryDirectoryPath)
+    liftIO (writesubmissionData formResult temporaryDirectoryPath)
+    let inputPath = case sampleResult of FormSuccess sample -> (dataPath ++ (DT.unpack sample))
+                                         _ -> temporaryDirectoryPath ++ "input.fa"
+    uploadedFile <- liftIO (B.readFile inputPath)
+    let validatedInput = validateInput uploadedFile sampleResult
+    if (isRight validatedInput)
         then do
-            --Create tempdir and session-Id
-            sessionId <- liftIO createSessionId  --session ID
-            -- include revprox
-            let outputPath = DT.unpack $ appTempDir $ appSettings app
-            let geQueueName = DT.unpack $ appGeQueueName $ appSettings app
-            let temporaryDirectoryPath = outputPath ++ sessionId ++ "/"
-            let tawsresultPath = temporaryDirectoryPath ++ "result.txt"
-            let dataPath = DT.unpack $ appDataDir $ appSettings app
-            let bigcachePath = dataPath ++ "U50_vs_SP.xml"
-            let programPath = DT.unpack $ appProgramDir $ appSettings app
-            liftIO (createDirectory temporaryDirectoryPath)
-            let inpType = whichWay inputsubmission
-            if(inpType == 1 || inpType == 2) then do liftIO (writesubmissionData temporaryDirectoryPath inputsubmission)
-                                             else do return ()
             --run blast to create xml
             let blastpath = programPath ++ "blast/bin/"
             let unirefpath = dataPath ++ "/uniref50.fasta"
             let smallcachePath = temporaryDirectoryPath ++ "Inp_vs_U50.xml"
             let taerrorPath = temporaryDirectoryPath ++ "errorMsg.txt"
-            let inputPath = if (inpType == 3) then (dataPath ++ (DT.unpack (fromJust samplesubmission)))
-                                              else temporaryDirectoryPath ++ "input.fa"
             let blastcommand = blastpath ++ "blastx -query "++ inputPath ++" -db " ++ unirefpath ++ " -evalue 1e-4 -num_threads 5 -outfmt 5 -out " ++ smallcachePath ++ "\n"
             ----------------
             --Submit RNAlien Job to SGE
             --continue with samlesubmission xml file TODO change later!!!
-            let blastfilter = setBlastFilter
-            let tacommand = programPath ++ "transalign +RTS -s -C -w -A100M -RTS " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
+            let blastfilter = setBlastFilter formResult
+            let tacommand = programPath ++ "transalign +RTS -s -C -w -A100M -RTS " ++ blastfilter  ++ " " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
             let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
             let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
             let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
@@ -110,6 +109,7 @@ postHomeR = do
                 $(widgetFile "calc")
                 setTitle "Welcome To TAWS!"
         else do getHomeR
+                --hand over error message
 
 inputForm :: Form (Maybe FileInfo, Maybe Textarea, Maybe Text)
 inputForm = renderBootstrap3 BootstrapBasicForm $ (,,)
@@ -123,7 +123,7 @@ sampleForm = renderBootstrap3 BootstrapBasicForm (areq hiddenField (withSmallInp
 -- Auxiliary functions:
 -- | Adds cm prefix to pseudo random number
 randomid :: Int16 -> String
-randomid number = "taws" ++ (show number)
+randomid int = "taws" ++ (show int)
 
 createSessionId :: IO String
 createSessionId = do
@@ -131,36 +131,90 @@ createSessionId = do
   let sessionId = randomid (abs randomNumber)
   return sessionId
 
-writesubmissionData :: [Char] -> Maybe (Maybe FileInfo,Maybe Textarea,Maybe Text) -> IO()
-writesubmissionData temporaryDirectoryPath inputsubmission = do
-   if(isJust inputsubmission)
-     then do
-       let (filepath,pastestring,blastfilter) = fromJust inputsubmission
-       if(isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
-                           else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 $ unTextarea (fromJust  pastestring)))
-     else return ()
+writesubmissionData :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> String -> IO()
+writesubmissionData (FormSuccess (filepath,pastestring,_)) temporaryDirectoryPath = do
+  if (isJust filepath) then do liftIO (fileMove (fromJust filepath) (temporaryDirectoryPath ++ "input.fa"))
+                       else do liftIO (B.writeFile (temporaryDirectoryPath ++ "input.fa") (DTE.encodeUtf8 $ unTextarea (fromJust  pastestring)))
+writesubmissionData _ _ = return ()
 
---check fasta format
-checkSubmission :: FormResult (Maybe FileInfo,Maybe Text,Maybe Text) -> Maybe (Maybe FileInfo,Maybe Text,Maybe Text)
-checkSubmission (FormSuccess (a,b,c)) = Just (a,b,c)
-checkSubmission _ = Nothing
+setBlastFilter :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> String
+setBlastFilter (FormSuccess (_,_,blastfilter)) = maybe "" (\b -> "--blastfilter " ++ DT.unpack b ++ " ") blastfilter
+setBlastFilter _ = ""
 
---check fasta format
-checkInput :: (Maybe FileInfo,Maybe Textarea, Maybe Text) -> Int
-checkInput (fileupload,textarea,blastfilter)
-  | isJust fileupload = 1
-  | isJust textarea = 2
-  | otherwise = 3
+validateInput :: B.ByteString -> FormResult Text -> Either String String
+validateInput fastaFileContent sampleResult
+  | isRight checkedForm = Right "Input ok"
+  | isRight checkedSample = Right "Input ok"
+  | otherwise = Left ((fromLeft checkedForm) ++ (fromLeft checkedSample))
+  where checkedForm =  either (\a -> Left (show a)) (\b -> Right ("Input ok" :: String)) (parseFasta fastaFileContent)
+        checkedSample = validateSampleResult sampleResult
 
--- check if some input exists if not return 3 (=samplesubmission).
--- if input exists: if fasta file: return 1, if pasted sequence return two
-whichWay :: Maybe (Maybe FileInfo,Maybe Textarea, Maybe Text) -> Int
-whichWay inputsubmission
-   | isJust inputsubmission = checkInput $ fromJust inputsubmission
-   | otherwise = 3
+checkTextArea :: Maybe Textarea -> Either String Fasta
+checkTextArea filearea = do
+  if isJust filearea
+    then do
+       let bytes = DTE.encodeUtf8 $ unTextarea (fromJust filearea)
+       let parsingresult = either (\a -> Left (show a)) (\b -> Right b) (parseFasta bytes)
+       parsingresult
+    else (Left "")
 
---
-setBlastFilter :: Maybe (Maybe FileInfo,Maybe Textarea,Maybe Text) -> String
-setBlastFilter inputsubmission
-  | isJust inputsubmission = maybe "" (\b -> "--blastfilter " ++ DT.unpack b ++ " ") ((\(_,_,a) -> a)(fromJust inputsubmission))
-  | otherwise = ""
+checkBlastFilter :: Maybe Text -> Either String Float
+checkBlastFilter (Just blastfilter) = either (\a -> Left (show a)) (\b -> Right b) (parse float "blastfilter" (DTE.encodeUtf8 blastfilter))
+checkBlastFilter _ = Left ("")
+        
+validateSampleResult :: FormResult Text -> Either String Text
+validateSampleResult (FormSuccess sample) = if (sample == (DT.pack "452.fa"))
+                                              then Right sample
+                                              else Left "Incorrect sample requested."
+validateSampleResult _ = Left ""
+
+(<++>) :: forall (f :: * -> *) b. (Applicative f, Monoid b) => f b -> f b -> f b
+(<++>) a b = (++) <$> a <*> b
+
+(<:>) :: forall (f :: * -> *) a. Applicative f => f a -> f [a] -> f [a]
+(<:>) a b = (:) <$> a <*> b
+
+number :: forall s u (m :: * -> *). Stream s m Char => ParsecT s u m [Char]
+number = many1 digit
+
+plus :: forall s u (m :: * -> *). Stream s m Char => ParsecT s u m [Char]
+plus = char '+' *> number
+
+minus :: forall s u (m :: * -> *). Stream s m Char => ParsecT s u m [Char]
+minus = char '-' <:> number
+
+integer :: forall s u (m :: * -> *). Stream s m Char => ParsecT s u m [Char]
+integer = plus <|> minus <|> number
+
+float :: forall s u (m :: * -> *). Stream s m Char => ParsecT s u m Float
+float = fmap rd $ integer <++> decimal <++> _exponent
+
+    where rd       = read :: String -> Float
+          decimal  = option "" $ char '.' <:> number
+          _exponent = option "" $ oneOf "eE" <:> integer
+
+genParserFasta :: GenParser ByteString st Fasta
+genParserFasta = do
+  _ <- string (">") 
+  _header <- many1 (noneOf "\n")                
+  _ <- newline
+  _sequence <- many genParserSequenceFragments  
+  _ <- newline 
+  return $ Fasta _header (concat _sequence)
+
+genParserSequenceFragments :: GenParser ByteString st String
+genParserSequenceFragments = do
+  _sequencefragment <- many1 (oneOf "AaBbCcDdEeFfGgHhIiKkLlMmNnPpQqRrSsTtUuVvWwYyZzXx*-")                
+  _ <- newline
+  return $ _sequencefragment
+  
+-- | parse Fasta
+parseFasta :: ByteString -> Either ParseError Fasta
+parseFasta input = parse genParserFasta "genParseFasta" input
+
+data Fasta = Fasta
+  { 
+    header :: String,
+    seq :: String
+  }
+  deriving (Show, Eq)

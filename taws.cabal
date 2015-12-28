@@ -90,6 +90,8 @@ library
                  , process
                  , cassava
                  , either-unwrap
+                 , parsec
+                 , conduit-extra
 
 executable         taws
     if flag(library-only)
