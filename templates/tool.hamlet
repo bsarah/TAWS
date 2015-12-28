@@ -61,11 +61,9 @@
           -c --cache            generate alignment cache for initial alignment
           -n --limit=INT        max number of alignments to consider
           -o --outfile=ITEM     output to file
-          -e --extract=ITEM     explicit list of alignments to extract
-             --cite             output citation information
-          -b --blastfilter=NUM  exclude intermediate alignment with per-column score
-                                less than this value (not using this option disables
-                                the filter)
+          -e --extract=ITEM     explicit list of alignments to extract<br>
+             --cite             output citation information<br>
+          -b --blastfilter=NUM  exclude intermediate alignment with per-column score less than this value (not using this option disables the filter)<br>
           -d --debug            show debug output
           -? --help             Display help message
           -V --version          Print version information
