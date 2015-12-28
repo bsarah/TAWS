@@ -3,9 +3,9 @@
     Please enable javascript.
 <!--  <div class="page-header"> -->
   <hr>
-  <h1><span class="label label-default" style="float:right;" >Webservice</h1>
+  <h1><span class="label label-default" style="float:right;background-color:silver;" >Webservice</h1>
   <br>
-  <h3><span class="label label-default" style="float:left;background-color:silver;">Overview</h3>
+  <h3><span class="label label-default" style="float:left;">Overview</h3>
     <br>
     <br>
 <!--  <div class="spacer"> -->
@@ -28,7 +28,7 @@
       <br>
       If you want to learn more about the program please see the Tool page. If you need further help or citation information see the Help page.
      <hr />
-  <h3><span class="label label-default" style="float:left;background-color:silver;">Start Query</h3>
+  <h3><span class="label label-default" style="float:left;">Start Query</h3>
     <br>
     <br>
     <font size="3">
@@ -42,7 +42,7 @@
     <br>
       #{preEscapedToMarkup errorMsg}
     <hr />
-  <h3><span class="label label-default" style="float:left;background-color:silver;">Example</h3>
+  <h3><span class="label label-default" style="float:left;">Example</h3>
     <br>
     <br>
     <font size="3">
