@@ -21,7 +21,7 @@ import qualified Data.Text as DT
 import Text.Parsec
 import Text.Parsec.ByteString
 import Data.Either.Unwrap
-
+import Data.List.Split hiding (oneOf)
 
 -- This is a handler function for the GET request method on the HomeR
 -- resource pattern. All of your resource patterns are defined in
@@ -152,13 +152,19 @@ validateInput :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> B.Byte
 validateInput formInput fastaFileContent sampleResult
   | (isRight checkedForm) && (isRight checkedBlastFilter) = Right "Input ok"
   | (isRight checkedSample) && (isRight checkedBlastFilter) = Right "Input ok"
-  | otherwise = Left ((unwrapEither checkedForm) ++ (unwrapEither checkedSample) ++ (unwrapEither checkedBlastFilter))
+  | otherwise = Left (convertErrorMessagetoHTML((unwrapEither checkedForm) ++ (unwrapEither checkedSample) ++ (unwrapEither checkedBlastFilter)))
   where checkedForm =  either (\a -> Left (show a)) (\_ -> Right ("Input ok" :: String)) (parseFasta fastaFileContent)
         checkedSample = validateSampleResult sampleResult
         checkedBlastFilter = checkBlastFilter formInput
 
 unwrapEither :: Either String String -> String
-unwrapEither eithervalue = either (\a -> (show a)) (\_ -> ("" :: String)) eithervalue 
+unwrapEither eithervalue = either (\a -> (show a) ++ "<br>") (\_ -> ("" :: String)) eithervalue 
+
+convertErrorMessagetoHTML :: String -> String
+convertErrorMessagetoHTML errorMessage = htmlMessage
+        where replacedquotes = intercalate "<br>" . splitOn "\\n" $ errorMessage
+              replacedlinebreaks = intercalate " " . splitOn "\"" $ replacedquotes
+              htmlMessage = intercalate " " . splitOn "\\" $ replacedlinebreaks
 
 checkTextArea :: Maybe Textarea -> Either String Fasta
 checkTextArea filearea = do
@@ -174,7 +180,7 @@ checkBlastFilter (FormSuccess (_,_,blastfilter)) = checkBlastFilterValue blastfi
 checkBlastFilter _ = Right ("")
 
 checkBlastFilterValue :: Maybe Text -> Either String String
-checkBlastFilterValue (Just blastfilter) = either (\a -> Left (show a)) (\_ -> Right "Float ok") (parse float "blastfilter" (DTE.encodeUtf8 blastfilter))
+checkBlastFilterValue (Just blastfilter) = either (\a -> Left (show a)) (\_ -> Right "Float ok") (parse float "Error in blastfilter:" (DTE.encodeUtf8 blastfilter))
 checkBlastFilterValue _ = Right ("")
         
 validateSampleResult :: FormResult Text -> Either String String
@@ -213,7 +219,8 @@ genParserFasta = do
   _ <- string (">") 
   _header <- many1 (noneOf "\n")                
   _ <- newline
-  _sequence <- many genParserSequenceFragments   
+  _sequence <- many genParserSequenceFragments
+  eof
   return $ Fasta _header (concat _sequence)
 
 genParserSequenceFragments :: GenParser ByteString st String

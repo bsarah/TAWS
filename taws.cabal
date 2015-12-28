@@ -91,7 +91,7 @@ library
                  , cassava
                  , either-unwrap
                  , parsec
-                 , conduit-extra
+                 , split
 
 executable         taws
     if flag(library-only)
