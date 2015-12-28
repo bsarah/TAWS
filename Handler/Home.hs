@@ -59,7 +59,7 @@ postHomeR = do
   let inputPath = case sampleResult of FormSuccess sample -> (dataPath ++ (DT.unpack sample))
                                        _ -> temporaryDirectoryPath ++ "input.fa"
   uploadedFile <- liftIO (B.readFile inputPath)
-  let validatedInput = validateInput uploadedFile sampleResult
+  let validatedInput = validateInput formResult uploadedFile sampleResult
   if (isRight validatedInput)
     then do
       --run blast to create xml
@@ -72,7 +72,7 @@ postHomeR = do
       --Submit RNAlien Job to SGE
       --continue with samlesubmission xml file TODO change later!!!
       let blastfilter = setBlastFilter formResult
-      let tacommand = programPath ++ "transalign +RTS -s -C -w -A100M -RTS " ++ blastfilter  ++ " " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
+      let tacommand = programPath ++ "transalign +RTS -C -w -A100M -RTS " ++ blastfilter  ++ " " ++ smallcachePath ++ " " ++  bigcachePath  ++ " > " ++ tawsresultPath ++ " 2> " ++ taerrorPath ++ "\n"
       let archivecommand = "zip -9 -r " ++  temporaryDirectoryPath ++ "result.zip " ++ temporaryDirectoryPath ++ "\n"
       let blastdonecommand = "touch " ++ temporaryDirectoryPath ++ "/blastdone \n"
       let blastbegincommand = "touch " ++ temporaryDirectoryPath ++ "/blastbegin \n"
@@ -148,13 +148,17 @@ setBlastFilter :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> Strin
 setBlastFilter (FormSuccess (_,_,blastfilter)) = maybe "" (\b -> "--blastfilter " ++ DT.unpack b ++ " ") blastfilter
 setBlastFilter _ = ""
 
-validateInput :: B.ByteString -> FormResult Text -> Either String String
-validateInput fastaFileContent sampleResult
-  | isRight checkedForm = Right "Input ok"
-  | isRight checkedSample = Right "Input ok"
-  | otherwise = Left ((fromLeft checkedForm) ++ (fromLeft checkedSample))
-  where checkedForm =  either (\a -> Left (show a)) (\b -> Right ("Input ok" :: String)) (parseFasta fastaFileContent)
+validateInput :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> B.ByteString -> FormResult Text -> Either String String
+validateInput formInput fastaFileContent sampleResult
+  | (isRight checkedForm) && (isRight checkedBlastFilter) = Right "Input ok"
+  | (isRight checkedSample) && (isRight checkedBlastFilter) = Right "Input ok"
+  | otherwise = Left ((unwrapEither checkedForm) ++ (unwrapEither checkedSample) ++ (unwrapEither checkedBlastFilter))
+  where checkedForm =  either (\a -> Left (show a)) (\_ -> Right ("Input ok" :: String)) (parseFasta fastaFileContent)
         checkedSample = validateSampleResult sampleResult
+        checkedBlastFilter = checkBlastFilter formInput
+
+unwrapEither :: Either String String -> String
+unwrapEither eithervalue = either (\a -> (show a)) (\_ -> ("" :: String)) eithervalue 
 
 checkTextArea :: Maybe Textarea -> Either String Fasta
 checkTextArea filearea = do
@@ -165,13 +169,17 @@ checkTextArea filearea = do
        parsingresult
     else (Left "")
 
-checkBlastFilter :: Maybe Text -> Either String Float
-checkBlastFilter (Just blastfilter) = either (\a -> Left (show a)) (\b -> Right b) (parse float "blastfilter" (DTE.encodeUtf8 blastfilter))
-checkBlastFilter _ = Left ("")
+checkBlastFilter :: FormResult (Maybe FileInfo,Maybe Textarea,Maybe Text) -> Either String String
+checkBlastFilter (FormSuccess (_,_,blastfilter)) = checkBlastFilterValue blastfilter
+checkBlastFilter _ = Right ("")
+
+checkBlastFilterValue :: Maybe Text -> Either String String
+checkBlastFilterValue (Just blastfilter) = either (\a -> Left (show a)) (\_ -> Right "Float ok") (parse float "blastfilter" (DTE.encodeUtf8 blastfilter))
+checkBlastFilterValue _ = Right ("")
         
-validateSampleResult :: FormResult Text -> Either String Text
+validateSampleResult :: FormResult Text -> Either String String
 validateSampleResult (FormSuccess sample) = if (sample == (DT.pack "452.fa"))
-                                              then Right sample
+                                              then Right ("Sample input ok" :: String)
                                               else Left "Incorrect sample requested."
 validateSampleResult _ = Left ""
 
@@ -205,13 +213,12 @@ genParserFasta = do
   _ <- string (">") 
   _header <- many1 (noneOf "\n")                
   _ <- newline
-  _sequence <- many genParserSequenceFragments  
-  _ <- newline 
+  _sequence <- many genParserSequenceFragments   
   return $ Fasta _header (concat _sequence)
 
 genParserSequenceFragments :: GenParser ByteString st String
 genParserSequenceFragments = do
-  _sequencefragment <- many1 (oneOf "AaBbCcDdEeFfGgHhIiKkLlMmNnPpQqRrSsTtUuVvWwYyZzXx*-")                
+  _sequencefragment <- many1 (oneOf "AaCcGgTtUuRrYyKkMmSsWwBbDdHhVvNn-")
   _ <- optional newline
   return $ _sequencefragment
   
