@@ -108,7 +108,7 @@ constructTableLineContent (a,b,c,d,e,f,g,h,i) = "<tr>"++"<th>"++ a ++ "</th>"
 buildResultMsg :: Bool -> Bool -> Bool -> Bool -> IO (String,String)
 buildResultMsg done started blastdone blaststarted = do
     if done then return ("Job completed!","alert alert-success")
-            else if started then return ("Blast run completed. Transalign is still running.","alert alert-info")
+            else if started then return ("Blast run completed. Transalign is running.","alert alert-info")
                             else if blastdone then return ("Blast run completed.","alert alert-info")
-                                              else if blaststarted then return ("Blast is still running.","alert alert-info")
-                                                                   else return ("Your job is still running.","alert alert-info")
+                                              else if blaststarted then return ("Blast is running.","alert alert-info")
+                                                                   else return ("Your job is queued.","alert alert-info")
