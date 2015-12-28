@@ -1,7 +1,7 @@
 <div class="page-header">
-  <h1><span class="label label-default" style="float:right;">Help</span>
+  <h1><span class="label label-default" style="float:right;background-color:silver;">Help</span>
   <br>
-    <h3><span class="label label-default" style="float:left;background-color:silver;">Input</span>
+    <h3><span class="label label-default" style="float:left;">Input</span>
     <br>
     <br>
       <font size="3">
@@ -14,7 +14,7 @@
           <pre><p>
             >ENSGAUG00000000452_
             CTCAGCTGTGAGGTGTCTGACGTGAAGACGGAGGTGAAATGGTACAAGGATGGGAAGCTGCTGACCTCCAGCAAGAACATCTCCTTTGAGGCCAAAGGCAAAACTCGCCTGCTGGTCATTGAAAAGGTGGAGAAGAAGGATGCTGGCGAGTANN...
-    <h3><span class="label label-default" style="float:left;background-color:silver;">Output</span>
+    <h3><span class="label label-default" style="float:left;">Output</span>
     <br>
     <br>
       <font size="3">
@@ -41,7 +41,7 @@
         The columns denote: Query, Target, Score, Alignment length, Average score, Query start, Query end, Target start, Target end.<br>
         The webservice provides a table such that sorting can be done dynamically for other columns.
     <hr />
-    <h3><span class="label label-default" style="float:left;background-color:silver;">Contact</span>
+    <h3><span class="label label-default" style="float:left;">Contact</span>
     <br>
     <br>
       <font size="3">

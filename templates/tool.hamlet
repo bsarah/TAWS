@@ -1,9 +1,9 @@
 <div class="page-header">
-  <h1><span class="label label-default" style="float:right;">Tool</h1>
+  <h1><span class="label label-default" style="float:right;background-color:silver">Tool</h1>
   <br>
 
 
-    <h3><span class="label label-default" style="float:left;background-color:silver">Transalign - calculate transitive alignments</h3>
+    <h3><span class="label label-default" style="float:left;">Transalign - calculate transitive alignments</h3>
       <br>
       <br>
       <img src=@{StaticR images_blastx_transalign_png} style="float:right;height:200px;width:600px;" alt="Transitive alignments">
@@ -27,7 +27,7 @@
       the intermediate database and thus, the overlapping region in the target sequence, the transitive alignment is created (dashed line).
       <br>
 
-    <h3><span class="label label-default" style="float:left;background-color:silver">Running TransAlign</h3>
+    <h3><span class="label label-default" style="float:left;">Running TransAlign</h3>
     <br>
     <br>
       First, you need BLAST results in XML format, and an installed
@@ -106,7 +106,7 @@
           transalign inp_vs_u50.xml u50_vs_sp.xml > inp_vs_sp.txt
 
 
-    <h3><span class="label label-default" style="float:left;background-color:silver">Good and bad practices</h3>
+    <h3><span class="label label-default" style="float:left;">Good and bad practices</h3>
     <br>
     <br>
       <img src=@{StaticR images_plotall2_png} style="float:right;height:500px;width:600px;" alt="GSoC benchmarks">
@@ -121,7 +121,7 @@
       such that the user just needs to input the query sequences in fasta format.
       <br>
 
-    <h3><span class="label label-default" style="float:left;background-color:silver">Benchmarks</h3>
+    <h3><span class="label label-default" style="float:left;">Benchmarks</h3>
     <br>
     <br>
       During Google Summer of Code 2014 the program was updated such that it can run on smaller machines. The figure shows 
@@ -129,13 +129,13 @@
       For further information, see the <a href="http://biohaskell.org/GSoC_blog">corresponding blog</a>.
 
 
-    <h3><span class="label label-default" style="float:left;background-color:silver">Downloading and installing TransAlign</h3>
+    <h3><span class="label label-default" style="float:left;">Downloading and installing TransAlign</h3>
     <br>
     <br>
       The program is written in Haskell, and distributed as source code.
       This means you need a working Haskell compiler and environment.
       The current version can be downloaded
-      <a href="https://github.com/bsarah/transalign/tree/vector-work">here</a>.
+      <a href="https://github.com/bsarah/transalign/tree/master">here</a>.
       <br>
       See the generic
       <a href="http://biohaskell.org/Installation">installation instructions</a>
