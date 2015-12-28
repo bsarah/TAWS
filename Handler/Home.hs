@@ -110,14 +110,14 @@ postHomeR = do
         $(widgetFile "calc")
         setTitle "Welcome To TAWS!"
     else do
-      getHomeR
---      (formWidget, formEnctype) <- generateFormPost inputForm
---      (sampleWidget, sampleEnctype) <- generateFormPost sampleForm
---      defaultLayout $ do
---        aDomId <- newIdent
---        let errorMsg = DT.pack ((fromLeft validatedInput) ++ "<br>")
---        setTitle "Welcome To TAWS!"
---          $(widgetFile "homepage") 
+      (formWidget, formEnctype) <- generateFormPost inputForm
+      (sampleWidget, sampleEnctype) <- generateFormPost sampleForm
+      defaultLayout $ do
+        aDomId <- newIdent
+        let parsingErrors = fromLeft validatedInput
+        let errorMsg = DT.pack (parsingErrors ++ "<br>")
+        setTitle "Welcome To TAWS!"
+        $(widgetFile "homepage") 
 
 inputForm :: Form (Maybe FileInfo, Maybe Textarea, Maybe Text)
 inputForm = renderBootstrap3 BootstrapBasicForm $ (,,)
