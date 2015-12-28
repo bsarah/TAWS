@@ -31,7 +31,7 @@
     <br>
     <br>
       First, you need BLAST results in XML format, and an installed
-      <i>transalign</i> executable (see the next section for this).  
+      <i>transalign</i> executable (see the next section for this). 
       This will require a bit of disk space. 
       We're going to use UniRef 50 as the
       intermediate database, and SwissProt (sprot.fa) as the final target.
@@ -53,19 +53,24 @@
 
           transalign v0.1, ©2012 Ketil Malde
 
-            transalign [OPTIONS] [BLASTXML FILES]
-            Calculate sequence alignments transitively.
+          transalign [OPTIONS] [BLASTXML FILES]
+          Calculate sequence alignments transitively.
 
-            Common flags:
-              -l --long          long output detailing matching positions
-              -c --cache         generate alignment cache for initial alignment
-              -n --limit=INT     max number of alignments to consider
-              -o --outfile=ITEM  output to file
-              -e --extract=ITEM  explicit list of alignments to extract
-              -? --help          Display help message
-              -V --version       Print version information
-              -v --verbose       Loud verbosity
-              -q --quiet         Quiet verbosity
+          Common flags:
+          -l --long             long output detailing matching positions
+          -c --cache            generate alignment cache for initial alignment
+          -n --limit=INT        max number of alignments to consider
+          -o --outfile=ITEM     output to file
+          -e --extract=ITEM     explicit list of alignments to extract
+             --cite             output citation information
+          -b --blastfilter=NUM  exclude intermediate alignment with per-column score
+                                less than this value (not using this option disables
+                                the filter)
+          -d --debug            show debug output
+          -? --help             Display help message
+          -V --version          Print version information
+          -v --verbose          Loud verbosity
+          -q --quiet            Quiet verbosity
 
       Long output produces a large table matching query positions with
       target positions, while the default is to output a table similar to
@@ -88,6 +93,11 @@
       program, `showcache`, to inspect a cached alignment.  The default is
       to build a cache for the second step, but not the first, `-c` builds
       caches for both input files.
+      <br>
+      The `-b` option activates a filter such that alignments between 
+      sequences in intermediate and target database having a bitscore lower 
+      than this threshold are omitted. Depending on the value, this will 
+      speed up the running time of the program. 
       <br>
       You should now have the necessary input data, and you can run:
       <br>
