@@ -40,7 +40,8 @@
       <button .btn .btn-primary type="submit" style="">
          Send it! <span class="glyphicon glyphicon-upload" style=""></span>
     <br>
-     #{preEscapedToMarkup errorMsg}
+    <div class="alert alert-danger" role="alert">
+      #{preEscapedToMarkup errorMsg}
     <hr />
   <h3><span class="label label-default" style="float:left;background-color:silver;">Example</h3>
     <br>

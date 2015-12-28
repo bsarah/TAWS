@@ -37,7 +37,7 @@ getHomeR = do
   (sampleWidget, sampleEnctype) <- generateFormPost sampleForm
   defaultLayout $ do
     aDomId <- newIdent
-    let errorMsg = DT.pack "Test message<br>"
+    let errorMsg = DT.pack ""
     setTitle "Welcome To TAWS!"
     $(widgetFile "homepage") 
 
@@ -218,7 +218,7 @@ genParserSequenceFragments = do
   
 -- | parse Fasta
 parseFasta :: ByteString -> Either ParseError Fasta
-parseFasta input = parse genParserFasta "genParseFasta" input
+parseFasta input = parse genParserFasta "Error in fasta input:" input
 
 data Fasta = Fasta
   { 
